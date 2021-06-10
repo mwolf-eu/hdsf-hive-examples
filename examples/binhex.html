@@ -1,0 +1,80 @@
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<mmeta name="msapplication-tap-highlight" content="no">
+<mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+<title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+  <script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+
+  <script src="../../libs/d3-hexbin.v0.2.min.js"></script>
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    let vis;
+
+    function wrangler(data) {
+      data = data.map(d => {return {x:+d.x, y:+d.y}});
+      return data;
+    }
+
+    let cfg = {
+      accessors:{
+        x:{range:'width'},
+        y:{},
+        // the field must always be named 'color'.  It is generated dynamically by the plugin.
+        // 'binhex-color':{field:'color', domain:[0, 600], range:['transparent', '#69b3a2']},
+        // 'binhex-stroke':{field:'color', domain:[0, 600], range:['transparent', 'black']},
+        // NOTE: Colors w opacity in them (as above) DO NOT work with THREEjs
+        'opacity':{field:'qty', domain:[0, 600], range:[0, 1]},
+      },
+      data:[{url:'./data/data_for_density2d.csv', handler:wrangler}],
+      draw:[
+        {name:'axis', scale:'x'},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'binhex', x:'x', y:'y', radius:9, attr:{
+          fill:'#69b3a2', opacity:'opacity', stroke:'black', 'stroke-opacity':'opacity'
+        },
+        opt:{title:'Data', ev:{onMouseEnter:{popup:{vals:['qty']}}, group:'bh'}},
+        }
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis = new Hive.Visualization(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>

@@ -1,0 +1,108 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+
+  <script src="./data/choroJSON.js"></script>
+  <script src="./data/nycJSON.js"></script>
+
+  <style>
+    #visualization > svg, #visualization > canvas  {
+      background: #00007755;
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <h3>Pan / Zoom map</h3>
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    let vis;
+
+    // unify geoJSON and style data
+    choroData = choroData.map((item, i) => {
+      let featureId = item.id;
+      let feature = mapData.features.filter(d => d.id == featureId)[0];
+      return {...item, feature:feature};
+    });
+
+    let cfg = {
+      element:{
+        zoom:true,
+        drag:true,
+        style:{
+          width:'70vw',
+          height:'60vh'
+        },
+        renderer:{name:'svg'}
+      },
+      // frame:Hive.templates.basic(),
+      accessors:{
+        color:{field:'val', domain:[0,9], type:'linear', range:['#29524a', '#F2c8be']},
+        waypoint:{field:'name', domain:[], type:'ordinal', range:['star', 'square']}
+      },
+      data:[
+        {name:'choro', content:choroData},
+        {name:'points', content:[{long: -73.9679163, lata: 40.7495461, name:"UN Secretariat"}, {long: -73.9975, lata: 40.7352778, name:"TNS"}]}
+      ],
+      draw:[
+        {name:'geopath', frame:'basic', data:'choro', projection:{'d3.geoMercator':{center:[-73.9679163, 40.7495461], scale:100000, rotate:[0,0,0]}},
+          attr:{fill:'color', stroke:"black", "stroke-width":2, "stroke-opacity":.6},
+          opt:{generate:{latitude:'lat', longitude:'lon'}}},
+        // plugin defaults
+        // -alt points: Create all?
+
+        // getGeneratedAccessor will get a programmatically generated accessor.
+        // In this case the functions are generated and named by the map.
+        // getGeneratedAccessor has two args the function name and data field name.
+        {name:'point', frame:'basic', data:'points', x:'(lon,long)', y:'(lat,lata)', size:100, shape:'waypoint', attr:{fill:"#69b3a2", stroke:'black'}},
+      ]
+    }
+
+    window.THREE = THREE;
+
+    let c = chooserInit(cfg);
+    c.element.zoom = true;
+    c.element.drag = true;
+
+    vis = new Hive.Visualization().setTemplate('basic').graph(c);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>

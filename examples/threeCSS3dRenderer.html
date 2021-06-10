@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>three.js css3d</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+		<style>
+			body {
+				background-color: #ffffff;
+			}
+
+			#blocker {
+				position: absolute;
+				top: 0;
+				left: 0;
+				bottom: 0;
+				right: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h3>Using Css3d.  Grab below this text (right above the object) to rotate.  Use mouse wheel to zoom.</h3>
+		<h3>Note: Three can have z-index issues with this technique if paper/canvas or events are used.</h3>
+		<div id="container"></div>
+		<div id="blocker"></div>
+
+		<script type="module">
+
+			import * as THREE from '../../libs/three.js/build/three.module.js';
+			// import Stats from '../../libs/three.js/examples/jsm/libs/stats.module.js'
+
+			// import * as THREE from '../build/three.module.js';
+
+			import { TrackballControls } from '../../libs/three.js/examples/jsm/controls/TrackballControls.js';
+			import { CSS3DRenderer, CSS3DObject } from '../../libs/three.js/examples/jsm/renderers/CSS3DRenderer.js';
+
+			var camera, scene, renderer;
+			var controls;
+
+			var Element = function ( url, x, y, z, ry ) {
+
+				var div = document.createElement( 'div' );
+				div.style.width = '800px';
+				div.style.height = '400px';
+				div.style.backgroundColor = '#fff';
+
+				var iframe = document.createElement( 'iframe' );
+				iframe.style.width = '800px';
+				iframe.style.height = '400px';
+				iframe.style.border = '0px';
+        // iframe.src = [ 'https://www.youtube.com/embed/', id, '?rel=0' ].join( '' );
+        iframe.src = url;
+				div.appendChild( iframe );
+
+				var object = new CSS3DObject( div );
+				object.position.set( x, y, z );
+				object.rotation.y = ry;
+
+				return object;
+
+			};
+
+			init();
+			animate();
+
+			function init() {
+
+				var container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+				camera.position.set( 500, 350, 950 );
+
+				scene = new THREE.Scene();
+
+				renderer = new CSS3DRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				var group = new THREE.Group();
+				group.add( new Element( './area.html', 0, 0, 400, 0 ) );
+				group.add( new Element( './binhex.html', 400, 0, 0, Math.PI / 2 ) );
+				group.add( new Element( './boxplot.html', 0, 0, - 400, Math.PI ) );
+				group.add( new Element( './contour.html', - 400, 0, 0, - Math.PI / 2 ) );
+				scene.add( group );
+
+				controls = new TrackballControls( camera, renderer.domElement );
+				controls.rotateSpeed = 4;
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				// Block iframe events when dragging camera
+
+				var blocker = document.getElementById( 'blocker' );
+				blocker.style.display = 'none';
+
+				controls.addEventListener( 'start', function () {
+
+					blocker.style.display = '';
+
+				} );
+				controls.addEventListener( 'end', function () {
+
+					blocker.style.display = 'none';
+
+				} );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / (window.innerHeight);
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update();
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>

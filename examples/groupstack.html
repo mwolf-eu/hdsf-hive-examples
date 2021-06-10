@@ -1,0 +1,140 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+
+
+  <!-- Hive Popups -->
+
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <!-- VISUALIZATION SECTION -->
+  <div id="visualization"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import * as schemes from '../dist/schemes/index.js';
+    import "../dist/meta/facet.js";
+
+    let pMax, pMin; // participation
+    let marginView = 55;
+    let marginViewBottom = 100;
+
+    let vis = new Hive.Visualization();
+    let frames = vis.templates.chart();
+    // the labels here are loooong
+    frames.attr.margin = [['edge-right', marginView], ['edge-bottom', marginViewBottom]];
+
+    let genders = ['Women', 'Men'];
+
+    function facetDataHandler(frame, data, ctxt) {
+      let marginFrame = 5;
+      let marginView = 5;
+      let titleFontSize = 14;
+      let axesCfg = {marginFrame:marginFrame, marginView:marginView, titleFontSize:titleFontSize};
+
+      let rv = Hive.facet.addDefaultAxes(frames, ctxt, axesCfg); // add nodes
+      if (ctxt.init) { // draw into nodes
+        rv.left.ids.forEach((item, i) => {
+          cfg.draw.push({name:'axis', frame:item, scale:'y0', ticks:6, opt:{orientation:'left'}})
+        });
+        rv.bottom.ids.forEach((item, i) => {
+          cfg.draw.push({name:'axis', frame:item, scale:'Region', attr:{'text':{transform:'rotate(45)', 'text-anchor':'start'}}, opt:{orientation:'bottom', text:{textAnchor:'tl', rotate:45, pad:5}}})
+        });
+      }
+
+      let stack = d3.stack().keys(genders)(data);
+      pMin = d3.min([pMin, d3.min(stack[0], d => d[0])]);
+      pMax = d3.max([pMax, d3.max(stack[stack.length-1], d => d[1])]);
+
+      let basicView = vis.templates.basic({prefix:frame.id, titleFontSize:titleFontSize, guides:false});
+      basicView.attr.margin = ['edge-all', marginView]
+      frame.children = [basicView];
+
+      genders.forEach((item, i) => {
+        vis.getData().push({name:frame.id+`-data-${item}`, content:stack[i].map(d =>{return{...d, Gender:item}}) }); // push data then bars
+        vis.getDraw().push({name:'label', frame:frame.id+'-basic title > text', content:data[0].Year, attr:{'font-size':titleFontSize}, opt:{text:{textAnchor:'bm'}}});
+        vis.getDraw().push({name:'rectangle', frame:frame.id+'-basic center-view', data:frame.id+`-data-${item}`, x:'Region', y:'y0', v:'y1', width:.6, attr:{fill:'color'},
+          guide:[{key:"attr.fill", title:"Gender", qty:4, frame:'basic > guide-right'}]
+          });
+        });
+    }
+
+    function wrangler(data) {
+      let regions = [...new Set(data.map(d => d.Region))];
+      vis.getAccessorCfg()['Region'].domain = regions;
+
+      let facet = new Hive.facet();
+      let c = {
+        ...facet.sort(data, ['Year']),
+        direction:'row',
+        prefix:'years',
+        dataHandler:facetDataHandler
+      };
+      let faceted = facet.flexFormat(c); // get flex data
+      Hive.templates.getCfgNode(frames, 'chart center-container > view').children = [faceted];
+
+      let buffer = 5;
+      ['y0','y1'].forEach((item, i) => {
+        vis.getAccessorCfg()[item].domain = [pMin,pMax+buffer];
+      });
+      return data;
+    }
+
+    let cfg = {
+      accessors: {
+        Region:{type:'band', range:'width'},
+        y0:{field:0},
+        y1:{field:1},
+        color:{field:'Gender', domain:[], type:'ordinal', range:schemes.default.office.Damask6},
+        bgX:{field:'x', domain:[0,100], type:'linear', range:'width'},
+        bgY:{field:'y', domain:[0,100], type:'linear'},
+      },
+      frames:frames,
+      data: [{url:'./data/figure-2-3.csv', handler:wrangler}],
+      draw:[
+        {name:'label', frame:'basic > left-container > title > text', content:'Workforce Participation by Year/Region/Gender', attr:{'font-size':16, 'font-weight':500}, opt:{text:{textAnchor:'bm', justify:'center'}}},
+        {name:'label', frame:'left text', content:'% Participation', attr:{'font-size':10}, opt:{text:{textAnchor:'bm', rotate:270}}}
+      ]
+    }
+
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>
+
+</html>

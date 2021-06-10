@@ -1,0 +1,108 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+
+
+  <!-- Hive Popups -->
+
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type='module'>
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import schemes, * as colors from '../dist/schemes/index.js';
+
+    let xExt=[];
+    let vis = new Hive.Visualization();
+    let frames = vis.templates.basic();
+
+    function facetDataHandler(frame, data) {
+      // prep flex template
+      frame.attr.margin = [['edge-top', 5]];
+      let genericView = vis.templates.basic({prefix:frame.id, fill:false});
+      frame.children = [genericView];
+      // put the same flex content for spacing but do not process.
+      if (!data) return;
+
+      cfg.data.push({name:frame.id+'-data', content:data});
+      vis.setAccessor(`${frame.id}-y`, {field:'price', domain:[0,d3.max(data, d=>d.price)]})
+      cfg.draw.push({name:'label', frame:frame.id+'-basic title > text', content:data[0].symbol, opt:{text:{textAnchor:'bm'}}});
+      cfg.draw.push({name:'area', data:frame.id+'-data', frame:frame.id+'-basic center-view', x:'x', y:`${frame.id}-y`, y1:0,
+        attr:{fill:'areaColor', stroke:'grey', 'stroke-width':1}});
+    }
+
+    function wrangle(data) {
+      data = data.map(d => {return {symbol:d.symbol, date:new Date(d.date), price:+d.price}});
+      xExt.push(data[0].date, data[data.length-1].date);
+
+      let facet = new Hive.facet()
+      let c = {
+        ...facet.sort(data, ['symbol']),
+        direction:'column',
+        prefix:'marketCap',
+        dataHandler:facetDataHandler
+      };
+
+      let faceted = facet.flexFormat(c); // get flex data
+      Hive.templates.getCfgNode(frames, 'basic center-view').children = [faceted]; // add it
+
+      return data;
+    }
+
+    let cfg = {
+      element:{
+        renderer:{name:'svg'},
+        sizing:{width:631, height:547, keepAspect:true},
+        style:{
+          width:'70vw',
+          height:'60vh'
+        },
+      },
+      frames:frames,
+      accessors:{
+        x:{field:'date', domain:xExt, type:'time', range:'width'},
+        areaColor:{field:'symbol', domain:["S&P 500", "MSFT", "AMZN", "IBM", "GOOG", "10 Year T-Note", "AAPL"], type:'ordinal', range:schemes.tableau.Tableau10}
+      },
+      data:[
+        {url:'./data/stocks.tsv', handler:wrangle}
+      ],
+      draw:[
+        {name:'label', content:'Small Multiples', attr:{'font-size':16, 'font-weight':500}, opt:{text:{textAnchor:'bm'}}},
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser  </script>
+</body>

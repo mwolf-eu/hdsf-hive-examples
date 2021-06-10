@@ -1,0 +1,124 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+  <script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+  <div id="visualization" class="section-container"></div>
+
+  <script type='module'>
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import * as schemes from '../dist/schemes/index.js';
+
+
+    // WRANGLING
+    let xExt=[], yExt=[];
+    let flatData = [];
+    let vis = new Hive.Visualization();
+
+    // let frames = vis.templates.chart({chart:{axis:{top:{enabled:true}, right:{enabled:true}}}});
+
+    function wrangle(data) {
+      data = data.map(d => {return {symbol:d.symbol, date:new Date(d.date), price:+d.price}});
+
+      // by year
+      let bySymbol = d3.nest().key(k => k.symbol).rollup(d =>
+          d.filter(e => e.date.getMonth()==0||e.date.getMonth()==6)).object(data);
+
+      flatData.push(...bySymbol['IBM'], ...bySymbol['MSFT'], ...bySymbol['AMZN']);
+
+      xExt.push(flatData[0].date, flatData[flatData.length-1].date);
+      yExt.push(...d3.extent(flatData, d=>d.price));
+
+      return [bySymbol.IBM, bySymbol.MSFT, bySymbol.AMZN];
+    }
+
+    // make two schemes
+    let colors = schemes.default.tableau.Summer8;
+    let dark = colors.filter((d,i) => i%2);
+    let light = colors.filter((d,i) => !(i%2));
+
+    let cfg = {
+      accessors:{
+        ay:{domain:[-3,7]},
+        x:{field:'date', domain:xExt, type:'time', range:'width'},
+        y:{field:'price', domain:yExt},
+        pointShape:{field:'symbol', domain:[], type:'ordinal', range:[1,2,5]},
+        pointColor:{field:'symbol', domain:[], type:'ordinal', range:light},
+        lineColor:{field:'symbol', domain:[], type:'ordinal', range:dark},
+        lineCurve:{field:'symbol', domain:[], type:'ordinal', range:[d3.curveLinear, d3.curveCatmullRom, d3.curveStep]},
+        lineDash:{field:'symbol', domain:[], type:'ordinal', range:[0,2,4]},
+
+        bgX:{field:'x', domain:[0,100], type:'linear', range:'width'},
+        bgY:{field:'y', domain:[0,100], type:'linear'},
+      },
+      data:[
+        // {content:smData},
+        {url:'./data/stocks.tsv', handler:wrangle},
+        {name:'flatData', content:flatData}
+      ],
+      draw:[
+        {name:'label', content:'Technology Stocks', opt:{text:{textAnchor:'bm'}}},
+
+        {name:'axis', scale:'x', opt:{orientation:'top'}},
+        {name:'axis', scale:'y', opt:{orientation:'right'}},
+        {name:'axis', scale:'x', opt:{orientation:'bottom'}},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'axis', frame:'chart center-container > view', scale:'x', opt:{orientation:'bottom', gridColor:'lightgrey'}},
+        {name:'axis', frame:'chart center-container > view',scale:'y', opt:{orientation:'left', gridColor:'lightgrey'}},
+
+        {name:'label', frame:'chart top text', content:'Year', attr:{'font-size':9}, opt:{text:{textAnchor:'bm'}}},
+        {name:'label', frame:'chart right text', content:'Market Cap ($B)', attr:{'font-size':9}, opt:{text:{textAnchor:'bm', rotate:90}}},
+        {name:'label', frame:'chart bottom text', content:'Year', attr:{'font-size':9}, opt:{text:{textAnchor:'bm'}}},
+        {name:'label', frame:'chart left text', content:'Market Cap ($B)', attr:{'font-size':9}, opt:{text:{textAnchor:'bm', rotate:270}}},
+
+        {name:'line', x:'x', y:'y', curve:'lineCurve', attr:{stroke:'lineColor', 'stroke-dasharray':'lineDash'},
+          guide:[{key:"attr.stroke", title:"Firms", qty:4, frame:'basic guide-right', labelOpt:{opt:{text:{yOffset:-4}}}, titleOpt:{opt:{text:{yOffset:-1}}}},
+                 {key:"attr.stroke-dasharray"}
+               ]},
+
+        {name:'point', shape:'pointShape', data:'flatData', x:'x', y:'y', attr:{fill:'pointColor'},
+          opt:{ev:{onMouseEnter:{element:{opacity:.5},
+          popup:{title: 'Market Cap (Billions)', vals:['symbol','price'], handler:d=>Hive.popup.formatLongTitleColor(d)}}}},
+          guide:[{key:["attr.fill","shape"]}]}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.setTemplate('chart', {chart:{axis:{top:{enabled:true}, right:{enabled:true}}}}).graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>

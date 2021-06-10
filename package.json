@@ -1,0 +1,32 @@
+{
+  "name": "hdsf-hive-examples",
+  "version": "0.0.1",
+  "description": "Examples for hdsf-hive.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cp": "cp -ar ./node_modules/hdsf-hive/src/schemes ./node_modules/hdsf-hive/src/renderers ./node_modules/hdsf-hive/src/meta ./node_modules/hdsf-hive/src/popup.js  ./node_modules/hdsf-hive/src/SVGLoader.js dist",
+    "build:flex": "browserify ./node_modules/hdsf-flex/src/flex.js -o ./dist/flexWorker.js",
+    "build:flexmin": "browserify ./node_modules/hdsf-flex/src/flex.js | terserjs -mc > ./dist/flexWorker.js",
+    "build:hive": "browserify ./node_modules/hdsf-hive/src/core.js ./node_modules/hdsf-hive/src/plugins/* ./node_modules/hdsf-hive/src/renderers/svg.js -p esmify -o dist/hdsf-hive.js --standalone mod",
+    "build:hivemin": "browserify ./node_modules/hdsf-hive/src/core.js ./node_modules/hdsf-hive/src/plugins/* ./node_modules/hdsf-hive/src/renderers/svg.js -p esmify --standalone mod | terserjs -mc -o dist/hdsf-hive.js",
+    "build": "npm run build:hive && npm run build:flex && npm run cp",
+    "start": "mkdir -p dist && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwolf-eu/hdsf-hive-examples.git"
+  },
+  "author": "Michael Wolf",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mwolf-eu/hdsf-hive-examples/issues"
+  },
+  "homepage": "https://github.com/mwolf-eu/hdsf-hive-examples#readme",
+  "dependencies": {
+    "hdsf-hive": "^0.0.1"
+  }
+}

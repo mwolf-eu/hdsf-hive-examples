@@ -1,0 +1,150 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <h2>Radial Line, Points, Bar, and Area with Axis labels</h2>
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    let smData = [{x:1, y:3, y0:1, y1:2}, {x:2, y:4, y0:1, y1:5}, {x:3, y:6, y0:1, y1:2},
+                  {x:4, y:4, y0:2, y1:3}, {x:1, y:2, y0:1, y1:4}, {x:2, y:4, y0:3, y1:5},
+                  {x:3, y:6, y0:2, y1:4}, {x:1, y:2, y0:2, y1:4}, {x:2, y:4, y0:3, y1:4},
+                  {x:3, y:6, y0:4, y1:5}, {x:4, y:4, y0:3, y1:4}, {x:5, y:3, y0:4, y1:5}];
+
+    let view = 'q1';
+    // pre wrangle data to add angle
+    let angle = d3.scaleLinear().domain([0,smData.length]).range([0, (2*Math.PI)]);
+    smData = smData.map((d, i) => {return {...d, angle:angle(i)}})
+
+    // ring data objs
+    let numRings = 3;
+    let extY = d3.extent(smData, d => d.y);
+    let step = extY[1]/numRings;
+    let ringData = new Array(numRings).fill(0).map((d,i) => {
+      return {name:'ring'+i, content:smData.map(e => {return {angle:e.angle, radius:(i*step)+step}})};
+    })
+
+    let labelOffset = .22
+    let ringLabel = {name:'ringLabel', content:smData.map(e => {return {angle:e.angle, radius:((numRings-1)*step)+step+(step*labelOffset)}})};
+
+    // ring draw objs
+    let ringDraw = ringData.map(d => {return {name:'line', frame:view, data:d.name, x:'axisX', y:'axisY', curve:d3.curveCardinalClosed, attr:{stroke:"#aaa"}}});
+
+    // line data objs
+    let lineData = smData.map((d,i) => {
+      return {name:'line'+i, content:[{angle:d.angle, radius:0}, {angle:d.angle, radius:extY[1]}] };
+    })
+
+    // line draw objs
+    let lineDraw = lineData.map(d => {return {name:'line', frame:view, data:d.name, x:'axisX', y:'axisY', attr:{stroke:"#ccc", 'stroke-dasharray':3}}});
+
+    // straight label data content
+    let labelDataContent = ringData.map((d,i) => {return {angle:lineData[0].content[0].angle, radius:d.content[0].radius}});
+
+    // round label data
+    let fontSize = 16;
+
+    let filterRotate = 0; //(Math.PI/2); // Rotate by x radians
+    let cosFilter = (d,i,row) => (d * Math.cos(row.angle-filterRotate));
+    let sinFilter = (d,i,row) =>  (d * Math.sin(row.angle-filterRotate));
+    // let labelFilter = (d)=>d-filterRotate;
+    let offsetAngles = [0, Math.PI*.5, Math.PI, Math.PI*1.5, Math.PI*2]; //-filterRotate,
+
+    let vis = new Hive.Visualization();
+    let frames = vis.templates.quadrants();
+    Hive.templates.getCfgNode(frames, "basic").attr.margin = ['edge-all', 20];
+
+    // change orientation / direction by postfilters and range
+    let cfg = {
+      accessors:{
+        ry:{field:'y', domain:[0,6], range:'-height', postFilter:cosFilter},
+        rx:{field:'y', domain:[0,6], range:'height', postFilter:sinFilter},
+
+        barRotate:{field:'angle', domain:[0,1], range:[0,1], postFilter:(d,i,row) => ((d) * 180 / Math.PI)}, // Rad to degree
+        barRadius:{field:'y', domain:[0,6], range:'-height'},
+
+        ry0:{field:'y0', domain:[0,6], range:'-height', postFilter:cosFilter},
+        rx0:{field:'y0', domain:[0,6], range:'height', postFilter:sinFilter},
+
+        ry1:{field:'y1', domain:[0,6], range:'-height', postFilter:cosFilter},
+        rx1:{field:'y1', domain:[0,6], range:'height', postFilter:sinFilter},
+
+        axisY:{field:'radius', domain:[0,6], range:'-height', postFilter:cosFilter},
+        axisX:{field:'radius', domain:[0,6], range:'height', postFilter:sinFilter},
+
+        // labelXOffset:{field:'angle', domain:offsetAngles, range:[0,fontSize/2,0,-fontSize/2, 0], preFilter:labelFilter},
+        // labelYOffset:{field:'angle', domain:offsetAngles, range:[-5,(fontSize/2),fontSize,(fontSize/2), -5], preFilter:labelFilter},
+
+        textAnchor:{field:'angle', domain:[0,1], range:[0,1], preFilter:(d,i,row)=>d-filterRotate, postFilter:(d,i,row) => {
+          if(d == 0-filterRotate || d == Math.PI-filterRotate) return 'middle'
+          if(d > 0-filterRotate && d < Math.PI-filterRotate) return 'start'
+          return 'end';
+        }},
+      },
+      frames:frames,
+      data:[
+        {content:smData},
+        {name:'label', content:labelDataContent},
+        ...ringData,
+        ...lineData,
+        ringLabel
+      ],
+      draw:[
+        ...ringDraw,
+        ...lineDraw,
+        {name:'line', frame:view, x:'rx', y:'ry', curve:d3.curveCardinalClosed},
+        {name:'area', frame:view, x0:'rx0', y0:'ry0', x1:'rx1', y1:'ry1', curve:d3.curveCardinalClosed, attr:{fill:'rgb(11,44,63)', opacity:.1}},
+        {name:'label', frame:view, data:'label', content:'[radius]', x:'axisX', y:'axisY', attr:{fill:"DodgerBlue"}, opt:{text:{pad:-10, textAnchor:'tm'}}},
+        {name:'rectangle', frame:view, x:0, y:'barRadius', width:8, rotate:'barRotate', attr:{'fill-opacity':0.5}},
+        {name:'point', shape:1, size:50, frame:view,  x:'rx', y:'ry', attr:{fill:'red'}},
+        // {name:'label', frame:view, data:'ring2', content:'[angle]', format:((d) => parseInt(Math.round((d * 180 / Math.PI)))), x:'axisX', y:'axisY',
+        //   offsetX:'labelXOffset', offsetY:'labelYOffset', attr:{fill:"#333333", 'text-anchor':'textAnchor', 'font-size':fontSize}, opt:{text:{format:d=>parseInt(Math.round((d * 180 / Math.PI)))}}},
+
+        {name:'label', frame:view, data:'ringLabel', content:'[angle]', x:'axisX', y:'axisY',
+          attr:{fill:"#333333", 'font-size':fontSize}, opt:{text:{textAnchor:'mm', format:d => String(parseInt(Math.round((d * 180 / Math.PI)))) }}},
+
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+</body>

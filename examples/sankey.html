@@ -1,0 +1,100 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+
+
+  <!-- Hive Popups -->
+
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+
+  <script src="../../libs/d3-sankey.js"></script>
+</head>
+
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import schemes, * as colors from '../dist/schemes/index.js';
+    import '../dist/meta/sankey.js';
+
+    let vis = new Hive.Visualization();
+
+    let frames = vis.templates.basic();
+    Hive.templates.getCfgNode(frames, "basic center-view").triggerStateChange = true;
+    // Example of data attached frame
+    Hive.templates.getCfgNode(frames, "basic center-view").user = {
+      sankey:{ // per frame user info
+        in:'links', nodes:'nodes', edges:'edges', // data names
+      }
+    };
+
+    function updateFrameAttachedData(ev, frame, sz, user) {
+      if(ev=='FRAME_CHANGED') {  // Frame size changed
+        Hive.Type.sankey(vis, sz, user.sankey);
+      }
+    }
+
+    let fontSize = 10;
+    let fontCenterMass = .85; // Visually where most of the central mass of the font is
+    let halfRectW = 8;
+
+    let cfg = {
+      onStateChange:updateFrameAttachedData,
+      element:{
+        renderer:{name:'svg'}
+      },
+      frames:frames,
+      accessors:{
+        c:{field:'name', domain:[], type:'ordinal', range:schemes.tableau.HueCircle19},
+        textTA:{field:'anchor', domain:['start','end'], type:'ordinal', range:['lm','rm']},
+      },
+      data:[
+        {name:'links', url:'./data/sankey.csv'},
+        {name:'nodes'},
+        {name:'edges'}
+      ],
+      draw:[
+        {name:'link', sx:'[sx]', sy:'[sy]', tx:'[tx]', ty:'[ty]', data:'edges', orientation:'linkHorizontal', attr:{'stroke-width':'[width]', stroke:'c', 'stroke-opacity':.5},
+          opt:{title:'Source & Target Output (KWh)', orientation:'linkHorizontal', ev:{onMouseEnter:{popup:{vals:['name', 'value']}}, group:'edge'}}},
+        {name:'rectangle', frame:'basic view', x:'[x]', y:'[y]', v:'[height]', width:'[width]', data:'nodes', shape:1, attr:{fill:'c'},
+          opt:{title:'Source & Total Output (KWh)', ev:{onMouseEnter:{popup:{vals:['name', 'value']}}, group:'node'}}},
+        {name:'label', frame:'basic view', x:'[midx]', y:'[midy]', data:'nodes', content:'[name]', offsetX:'offX', offsetY:(fontSize*fontCenterMass)/2,
+          attr:{'text-anchor':'[anchor]', 'font-size':fontSize}, opt:{text:{textAnchor:'textTA', pad:8, yOffset:-2.2}}}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+</body>

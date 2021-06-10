@@ -1,0 +1,75 @@
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<mmeta name="msapplication-tap-highlight" content="no">
+<mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+<title>HARVESTER</title>
+
+<!-- Renderers -->
+<script type="text/javascript" src="../libs/d3/d3.js"></script>
+<script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+
+
+<!-- Hive Popups -->
+
+<script src='../../libs/svg-text.js'></script>
+<script src="../../libs/popper.js"></script>
+<script src="../../libs/tippy.js"></script>
+<!-- Hive Core-->
+<script type="module" src="../dist/hdsf-hive.js"></script>
+
+<!-- Hive Util -->
+
+
+<!-- Example Support Code  -->
+<script type="module" src="./chooser.js"></script>
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    let smData1 = [{x:1, y:3}, {x:2, y:5}, {x:3, y:4}, {x:4, y:6}, {x:5, y:2}];
+    let vis;
+
+    let cfg = {
+      logLevel:'log',
+      element:{
+        style:{
+          width:'70vw',
+          height:'60vh'
+        },
+        renderer:{name:'svg'}
+      },
+      accessors:{
+        x:{domain:[0,1,2,3,4,5,6], type:'band', range:'width'},
+        y:{domain:[0,6]},
+      },
+      data:[{name:'gradientCurve', content:smData1}],
+      draw:[
+        {name:'axis', scale:'x', opt:{text:{width:100}}},
+        {name:'axis', scale:'y', opt:{orientation:'left', text:{width:100, yOffset:-2.5}}},
+        {name:'axis', scale:'y', opt:{orientation:'left', gridColor:'grey'}},
+        {name:'area', data:'gradientCurve', x:'x', y:'y', y1:0, curve:d3.curveStep,
+          attr:{fill:[{'stop-color':'red'},{'stop-color':'blue'}]}, opt:{'gradient-type-fill':'vertical'}}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']]; //, {chart:{axis:{left:{textAnchor:{margins:{left:0}}}, bottom:{textAnchor:{margins:{top:0}}}}}}
+    vis = new Hive.Visualization().setTemplate('chart', {chart:{axis:{left:{width:0}}}}).graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>

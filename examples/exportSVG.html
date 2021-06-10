@@ -1,0 +1,99 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+  <script>
+  var visObj;  // Get the object from global space or from the _visualization attr of the selected element.
+  // In a hybrid case it does not matter which you choose.  It merges everything in the container for export.
+  </script>
+
+  <h3> The hybrid graph contains svg (always top) and canvas elements.  The exported svg is a composite of both.</h3>
+  <div onclick="visObj.export()" style="background:#ffa50055; border:black solid 2px; display: inline-block;">
+            <p style="margin:10px;">Click here to download.</p>
+  </div>
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    let smData = [{x:1, y:2}, {x:2, y:4}, {x:3, y:6}, {x:4, y:4}, {x:5, y:2}];
+
+    let cfg = {
+      element:{renderer:{name:'paperjs'}},
+      accessors:{
+        x:{domain:['1','2','3','4','5','6'], type:'band', range:'width'},
+        y:{domain:[0,6]}
+      },
+      data:[{content:smData}],
+      draw:[
+        {name:'axis', scale:'x'},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'rectangle', x:'x', y:'y', attr:{'stroke-width':3, 'stroke-dasharray':4}}
+      ]
+    }
+
+    let c0 = new Hive.Visualization(cfg);
+    visObj = c0;
+
+    cfg.onStateChange = finish;
+    cfg.element = {renderer:{name:'svg'}}
+    cfg.draw = [
+      {name:'point', x:'x', y:'y'}
+    ]
+
+    let c1 = new Hive.Visualization(cfg);
+
+    function finish(d) {
+      if (d == 'PARSE_CFG_END') {
+        //d3.select('svg').node()._visualization.export()
+        // interactivity
+        // this will be codified/encapsulated by Neal when he gets to that point
+        d3.selectAll('path').on('mouseenter', function(d) {
+          let t = d3.select(this);
+          let tr = t.attr('transform').replace(' ', 'px, ').replace(')', 'px)'); // add px to it for style
+          t.style('transform', tr + ' scale(3)')
+            .style('fill', 'red');
+        }).on('mouseleave', function(d) {
+          let t = d3.select(this);
+          t.style('transform', '')
+            .style('fill', '');
+        });
+      }
+    }
+  </script>
+
+
+</body>

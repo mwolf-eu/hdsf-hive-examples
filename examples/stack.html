@@ -1,0 +1,138 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+  <!--  -->
+
+  <!-- Hive Popups -->
+
+  <script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <!-- VISUALIZATION SECTION -->
+  <h3>Contrived data to show negative & missing observations.</h3>
+  <div id="visualization"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import * as schemes from '../dist/schemes/index.js';
+    import "../dist/meta/stack.js";
+
+    let vis = new Hive.Visualization();
+
+    let genders = ['Women', 'Men'];
+    let years = ['C. 1990', 'C. 2000', 'C. 2010'];
+
+    function wrangler(data) {
+      // contrive missing / negative observations
+      data = data.map((d,i) => { // delete two
+        let rv = d;
+        if(i==3 || i==20)
+          delete rv.Men;
+        return rv;
+      })
+      data[13].Women *= -1; // make negative
+      data[14].Women *= -1;
+
+      let regions = [...new Set(data.map(d => d.Region))];
+      vis.getAccessorCfg()['Region'].domain = regions;
+
+      let nest = d3.nest().key(k => k.Region).key(k => k.Year).object(data);
+      let stage0 = []; // wide data for stacking
+      let combos = [];
+
+      regions.forEach((r, i) => { // make wide for stacker
+        let row={};
+        years.forEach((y, i) => {
+          genders.forEach((g, i) => {
+            let combo = g +'-'+ y;
+            let sel = nest[r][y][0][g];
+            row[combo] = sel==undefined?0:sel;
+            combos.push(combo);
+          });
+        });
+        row.Region = r;
+        stage0.push(row)
+      });
+
+      let rv = Hive.Type.stack({data:stage0, keys:[... new Set(combos)]});
+      let dataCfg = vis.getData();
+      let drawCfg = vis.getDraw();
+      let labels = []
+      rv.data.forEach((item, i) => {
+        let isPos = i<rv.posLen;
+        dataCfg.push(item);
+        drawCfg.push({name:'rectangle', data:item.name, x:'Region', y:'y0', v:'y1', width:.6, attr:{fill:'color'},
+          guide:[{key:"attr.fill", title:"Gender/Year", qty:8, frame:'basic guide-right'}]
+          });
+        labels.push({name:'label', data:item.name, x:'Region', y:'y1', content:'[value]', attr:{fill:'white'},
+          opt:{text:{textAnchor:isPos?'tm':'bm', pad:isPos?0:5, justify:'center', format:d=>`${isNaN(parseInt(d))?'':parseInt(d)}`}}
+        });
+      });
+
+      drawCfg.push(...labels);
+      let buffer = 5;
+      rv.extent[1] += buffer;
+      ['y0','y1'].forEach((item, i) => {
+        vis.getAccessorCfg()[item].domain = rv.extent;
+      });
+      return data;
+    }
+
+    let cfg = {
+      logLevel:'log',
+      accessors: {
+        Region:{type:'band', range:'width'},
+        y0:{field:0},
+        y1:{field:1},
+        color:{field:'key', domain:[], type:'ordinal', range:schemes.default.office.Damask6},
+        bgX:{field:'x', domain:[0,100], type:'linear', range:'width'},
+        bgY:{field:'y', domain:[0,100], type:'linear'},
+      },
+      data: [{url:'./data/figure-2-3.csv', handler:wrangler}],
+      draw:[
+        {name:'label', content:'Participation by Gender/Year by Region', opt:{text:{width:150, textAnchor:'bm', pad:0, justify:'center'}}},
+        {name:'label', frame:'left text', content:'Participation in Workforce', attr:{'font-size':10}, opt:{text:{width:100, textAnchor:'bm', rotate:270, justify:'center'}}},
+        {name:'axis', scale:'y0', opt:{orientation:'left', text:{yOffset:-2.5}}},
+        {name:'axis', scale:'Region', attr:{'text':{'text-anchor':'start', 'font-size':9}}, opt:{text:{width:"75bw", height:25}}},
+      ]
+    }
+
+    window.THREE = THREE;
+
+    // Text formatting requires blocking on font-load. Pass 'new FontFace()' args to constructor.
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.setTemplate('chart').graph(chooserInit(cfg), fonts);
+
+    window.vis = vis; // share w chooser
+  </script>
+</body>
+
+</html>

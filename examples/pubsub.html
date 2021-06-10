@@ -1,0 +1,131 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <!-- <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script> -->
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+  The first two and last two are joined in groups.  Hover over the points to see the popups.
+  <div id="visualization0" class="section-container"></div>
+  <div id="visualization1" class="section-container"></div>
+  <div id="visualization2" class="section-container"></div>
+
+  <script type='module'>
+    'use strict'
+
+    let smData0 = [{x:1, y:2}, {x:2, y:4}, {x:3, y:6}, {x:4, y:4}, {x:5, y:2}];
+    let smData1 = [{x:1, y:1}, {x:2, y:6}, {x:3, y:4}, {x:4, y:6}];
+    let smData2 = [{x:1, y:.5}, {x:2, y:1}, {x:3, y:1}, {x:4, y:1}, {x:5, y:1}];
+
+    let cfg0 = {
+      opts:{popup:{props:{placement:'right'}}},
+      element:{
+        selector:'#visualization0',
+        style:{
+          width:'50vw',
+          height:'30vh',
+        }
+      },
+      accessors:{
+        x:{domain:[0,1,2,3,4,5,6], type:'band', range:'width'},
+        y:{domain:[0,6]}
+      },
+      data:[
+        {content:smData0},
+        {name:'line', content:smData1},
+        {name:'point', content:smData2},
+      ],
+      draw:[
+        {name:'axis', scale:'x'},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'rectangle', x:'x', y:'y'},
+        {name:'point', shape:5, title:'Group 0', x:'x', y:'y', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{element:{color:'red', opacity:.5, scale:1.8}, popup:{vals:['y']}}, group:'points'}}},
+        {name:'line', data:'line', x:'x', y:'y', curve:d3.curveCatmullRom, attr:{stroke:'red', 'stroke-width':3}},
+        {name:'point', title:'Group 1', data:'line', x:'x', y:'y', shape:1, size:20, attr:{fill:'red'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+        {name:'point', title:'Group 1', data:'point', x:'x', y:'y', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+      ]
+    }
+
+    let c0 = new Hive.Visualization(cfg0);
+
+
+    let cfg1 = {
+      element:{selector:'#visualization1',
+      style:{
+        width:'50vw',
+        height:'30vh',
+      }},
+      accessors:{
+        x:{domain:[0,1,2,3,4,5,6], type:'band', range:'width'},
+        y:{domain:[0,6]}
+      },
+      data:[
+        {content:smData1},
+        {name:'point', content:smData2}
+      ],
+      draw:[
+        {name:'axis', scale:'x'},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'rectangle', x:'x', y:'y'},
+        {name:'point', shape:5, title:'Group 2', x:'x', y:'y', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+        {name:'point', title:'Second Group', data:'point', x:'x', y:'y', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
+      ]
+    }
+
+    let c1 = new Hive.Visualization(cfg1);
+
+
+    let cfg2 = {
+      element:{selector:'#visualization2',
+      style:{
+        width:'50vw',
+        height:'30vh',
+      }},
+      accessors:{
+        x:{domain:[0,1,2,3,4,5,6], type:'band', range:'width'},
+        y:{domain:[0,6]}
+      },
+      data:[
+        {name:'point', content:smData2}
+      ],
+      draw:[
+        {name:'axis', scale:'x'},
+        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'line', data:'point', x:'x', y:'y', curve:d3.curveCatmullRom, attr:{stroke:'blue', 'stroke-width':3}},
+        {name:'point', title:'Second Group', data:'point', x:'x', y:'y', size:20, attr:{fill:'lightblue'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
+      ]
+    }
+
+    let c2 = new Hive.Visualization(cfg2);
+
+  </script>
+
+
+</body>

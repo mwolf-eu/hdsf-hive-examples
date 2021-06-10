@@ -1,0 +1,139 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type='module'>
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import * as schemes from '../dist/schemes/index.js';
+
+
+    let xExt=[], yExt=[];
+    let vis = new Hive.Visualization();
+    let frames = vis.templates.chart();
+
+    function facetDataHandler(frame, data, ctxt) {
+      let marginFrame = 5;
+      let marginView = 5;
+      let titleFontSize = 14;
+      let axesCfg = {marginFrame:marginFrame, marginView:marginView, titleFontSize:titleFontSize};
+
+      let rv = Hive.facet.addDefaultAxes(frames, ctxt, axesCfg); // add nodes
+      if (ctxt.init) { // draw into nodes
+        rv.left.ids.forEach((item, i) => {
+          cfg.draw.push({name:'axis', frame:item, scale:'y', ticks:6, opt:{orientation:'left'}})
+        });
+        rv.bottom.ids.forEach((item, i) => {
+          cfg.draw.push({name:'axis', frame:item, scale:'x', opt:{orientation:'bottom'}})
+        });
+      }
+
+      // prep flex template
+      frame.attr['margin edge-top'] = marginFrame;
+      let leftAnchor = Hive.templates.getCfgNode(frames, 'basic left text');
+      // leftAnchor.attr.margin.push(['edge-right', 8]);
+      let genericView = vis.templates.basic({prefix:frame.id});
+      genericView.attr['margin edge-all'] = marginView
+      frame.children = [genericView];
+
+
+      if (!data) return;
+
+      cfg.data.push({name:frame.id+'-data', content:data});
+      cfg.draw.push({name:'area', data:'_area-fill_', id:'bgColor', frame:frame.id+' basic center-view', x:'_builtin-x_', y0:'_builtin-y_', y1:0, attr:{fill:'gainsboro', opacity:.5}});
+      cfg.draw.push({name:'label', frame:frame.id+' title > text', content:data[0].year, attr:{'font-size':titleFontSize}, opt:{text:{textAnchor:'bm'}}});
+      cfg.draw.push({name:'rectangle', data:frame.id+'-data', frame:frame.id+' basic center-view', x:'x', y:'y', attr:{fill:'barColor'}});
+    }
+
+    function wrangle(data) {
+      let names = ['AMZN', 'AAPL', 'IBM', 'MSFT'];
+
+      // Clean
+      let stage0 = data.map(d => {return {symbol:d.symbol, date:new Date(d.date), price:+d.price}});
+      // Get Names in December
+      let stage1 = stage0.filter(d => names.includes(d.symbol) && d.date.getMonth() == 11);
+      // Add year field
+      let stage2 = stage1.map(d => {return{...d, year:d.date.getFullYear()}});
+
+      let round = 50; // round up for nice axes
+      xExt.push(...names);
+      let yMax = d3.max(stage2, d=>d.price);
+      yExt.push(0,Math.ceil(yMax / round)*round);
+
+      let facet = new Hive.facet();
+      let c = {
+        ...facet.sort(stage2, ['year']),
+        direction:'row',
+        prefix:'marketCap',
+        dataHandler:facetDataHandler,
+        len:undefined  // make it autosize
+      };
+      let faceted = facet.flexFormat(c); // get flex data
+      Hive.templates.getCfgNode(frames, 'chart center-container > view').children = [faceted];
+
+      return data;
+    }
+
+    // make two schemes
+    let colors = schemes.default.tableau.Summer8;
+    let dark = colors.filter((d,i) => i%2);
+    let light = colors.filter((d,i) => !(i%2));
+
+    let cfg = {
+      frames:frames,
+      accessors:{
+        x:{field:'symbol', domain:xExt, type:'band', range:'width'},
+        y:{field:'price', domain:yExt},
+        barColor:{field:'symbol', domain:[], type:'ordinal', range:dark},
+      },
+      data:[
+        {url:'./data/stocks.tsv', handler:wrangle},
+      ],
+      draw:[
+        {name:'label', content:'Small Multiples', opt:{text:{textAnchor:'bm'}}},
+        {name:'label', frame:'chart bottom > text', content:'Firm', attr:{'font-size':10}, opt:{text:{textAnchor:'bm'}}},
+        {name:'label', frame:'chart left > text', content:'Price (Billions)', rotate:270, attr:{'font-size':10}, opt:{text:{textAnchor:'bm', rotate:270}}},
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis = new Hive.Visualization(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+</body>

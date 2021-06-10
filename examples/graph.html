@@ -1,0 +1,292 @@
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no">
+<mmeta name="msapplication-tap-highlight" content="no">
+<mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+<title>HARVESTER</title>
+
+<!-- Renderers -->
+<script type="text/javascript" src="../libs/d3/d3.js"></script>
+<script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+<script type="text/javascript" src="/libs/h_tk_vendor/sugar.js"></script>
+<script type="text/javascript" src="/h_tk/workflow/defs/q.js"></script>
+
+
+<!-- HTK core -->
+<script type="text/javascript" src="/h_tk/main.js"></script>
+<script>
+H = {
+  Array:{},
+  Assert:{},
+  Obj:{},
+  Opts:{},
+  Coerce:{},
+}
+</script>
+<script type="text/javascript" src="/h_tk/core/array/for-each.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-array.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/has-own.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/for-in.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/for-own.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/deep-match.js"></script>
+<script type="text/javascript" src="/h_tk/core/namespace.js"></script>
+<script type="text/javascript" src="/h_tk/ingest/data-file.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/common/defaults/general.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/common/defaults/layouts.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-undef.js"></script>
+<script type="text/javascript" src="/h_tk/core/array/slice.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/pick.js"></script>
+<script type="text/javascript" src="/h_tk/wranglers/defs/slim/only.js"></script>
+<script type="text/javascript" src="/h_tk/core/array/index-of.js"></script>
+<script type="text/javascript" src="/h_tk/core/array/contains.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/omit.js"></script>
+<script type="text/javascript" src="/h_tk/wranglers/defs/slim/omit.js"></script>
+<script type="text/javascript" src="/h_tk/wranglers/slim.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/transforms/node-transform.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/transforms/edge-transform.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-not-undef.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/transforms/std-to-elk-graph.js"></script>
+<script type="text/javascript" src="/h_tk/core/store/jsds.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/positioners/elk-positions-2d.js"></script>
+<script type="text/javascript" src="/h_tk/core/options/defaults.js"></script>
+<script type="text/javascript" src="/h_tk/makers/common/scales.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/primitives.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/grid.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/line-markers.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/path-text.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/kind-of.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-kind.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-object.js"></script>
+<script type="text/javascript" src="/h_tk/core/assert/is-string.js"></script>
+<script type="text/javascript" src="/h_tk/core/coerce/to-str.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/tooltips.js"></script>
+<script type="text/javascript" src="/h_tk/core/event/pubsub.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/styles/2d-edge-styles.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/keys.js"></script>
+<script type="text/javascript" src="/h_tk/core/object/values.js"></script>
+<script type="text/javascript" src="/h_tk/output/defs/exporters.js"></script>
+<script type="text/javascript" src="/h_tk/output/img-file.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/2d/symbol/symbol-base.js"></script>
+<script type="text/javascript" src="/h_tk/workflow/tasker.js"></script>
+
+
+<!-- ELK -->
+<script type="text/javascript" src="/libs/h_tk_vendor/renderers/graphvis/graphlib-dot.js"></script>
+<script type="text/javascript" src="/libs/h_tk_vendor/renderers/graphvis/viz.js"></script>
+<script type="text/javascript" src="/libs/h_tk_vendor/renderers/graphvis/full.render.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/elk/elk-bundled.js"></script>
+
+<!-- ccnetvis -->
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/0-core-utils.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/0-layout_utils.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/circular.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/grid.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/hive.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/algos/ccnetviz/versinus.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/positioners/ccnet-positions-2d.js"></script>
+
+<!-- GRAPHVIS -->
+<script type="text/javascript" src="/h_tk/collections/structures-complex.js"></script>
+<script type="text/javascript" src="/h_tk/collections/defs/structures/complex/standard-graph.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/transforms/graph-to-dot.js"></script>
+<script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/positioners/graphviz-positions-2d.js"></script>
+
+<script type="text/javascript" src="/libs/h_tk_dist/unmin/harvest-core.js"></script>
+<script type="text/javascript" src="/libs/h_tk_dist/unmin/wranglers-format-number.js"></script>
+
+<script type="text/javascript" src="/h_tk/output/img-file.js"></script>
+<script type="text/javascript" src="/h_tk/output/defs/exporters.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/axes.js"></script>
+<script type="text/javascript" src="/h_tk/makers/common/scales.js"></script>
+<script type="text/javascript" src="/h_tk/core/event/pubsub.js"></script>
+<script type="text/javascript" src="/h_tk/makers/2d/labels.js"></script>
+
+<!-- Hive Popups -->
+
+<script src='../../libs/svg-text.js'></script>
+<script src="../../libs/popper.js"></script>
+<script src="../../libs/tippy.js"></script>
+<!-- Hive Core-->
+<script type="module" src="../dist/hdsf-hive.js"></script>
+
+<!-- Hive Util -->
+
+
+<!-- Example Support Code  -->
+<script type="module" src="./chooser.js"></script>
+
+<script type="module" src="../dist/meta/graph.js"></script>
+</head>
+
+<body>
+
+  <h2>Force layout with gradient edge relationships & SVG icons</h2>
+  <label for="layout">Layout:</label>
+  <select name="layout" id="layout">
+    <!-- Redundant/useless ccnetvis circular, elk random -->
+    <option data-type="elk" data-subt="box">box</option>
+    <option data-type="graphvis" data-subt="circo">circo</option>
+    <option data-type="elk" data-subt="disco">disco</option>
+    <option data-type="graphvis" data-subt="dot">dot</option>
+    <option data-type="elk" data-subt="force">force</option>
+    <option data-type="ccnetvis" data-subt="grid">grid</option>
+    <option data-type="ccnetvis" data-subt="hive">hive</option>
+    <option data-type="elk" data-subt="layered">layered</option>
+    <option data-type="elk" data-subt="mrtree">mrtree</option>
+    <option data-type="graphvis" data-subt="neato">neato</option>
+    <option data-type="elk" data-subt="radial">radial</option>
+    <option data-type="elk" data-subt="stress">stress</option>
+    <option data-type="graphvis" data-subt="twopi">twopi</option>
+    <option data-type="ccnetvis" data-subt="versinus">versinus</option>
+  </select>
+  <div id="visualization" class="section-container"></div>
+
+  <!-- Type module creates scope issues -->
+  <script type='module'>
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import "../dist/meta/graph.js"
+
+    let vis;
+
+    // TODO: final staging to make a separate worker
+    class graphWorker {
+      constructor(cfg) {
+        let promises = [];
+        this.files = ['nodes', 'edges']
+        this.files.forEach(f => {
+          promises.push(d3.csv(cfg[`${f}_file`]));
+        });
+
+        Promise.allSettled(promises).
+          catch(e => console.warn('graphWorker:', e)).
+          then(p => {
+            this.graph(cfg, ...p.map(d=>d.value));
+          });
+      }
+
+      visConfig(d) {
+        return {
+          nodes:d.nodes,
+          edges:d.edges,
+          extents:Hive.Type.graph.extents(d.nodes)
+        }
+      }
+
+      graph(cfg, nFile, eFile) {
+        let xForm = Hive.Type.graph.transform(nFile, eFile, cfg);
+        let position = Hive.Type.graph.position(cfg, xForm);
+        // send msg here
+        // BUG: circo (and other graphvis) need the timer.
+        // Is the lib using some sort of timer to write nodes/edges?
+        if (position.then) {
+          position
+            .then(d=>{
+              setTimeout((function(){visSetup(this.visConfig(d))}).bind(this), 1000);
+            });
+        } else {
+          visSetup(this.visConfig(position));
+        }
+      }
+    }
+
+
+    // set data / extents call vis
+    function visSetup(info) {
+      vis = new Hive.Visualization()
+
+      let frames = vis.templates.basic();
+      Hive.templates.getCfgNode(frames, "basic").attr['margin edge-all'] = 15;
+
+
+      let cfg = {
+        element:{
+          zoom:true,
+          drag:true,
+          style:{
+            width:'70vw',
+            height:'60vh'
+          },
+          renderer:{name:'svg'}
+        },
+        frames:frames,
+        accessors:{
+          y:{type:'linear'},
+          x:{type:'linear', range:'width'}
+        },
+        data:[{name:'line', content:[{x:0,y:0},{x:500,y:500}]}],
+        draw:[
+          {name:'link', data:'edges', sx:'sx', sy:'sy', tx:'tx', ty:'ty', attr:{
+            stroke:[{'stop-color':'hsl(222,30%,20%)'},{'stop-color':'lightgreen'}],
+            'stroke-width':2, 'stroke-opacity':.5
+          }, opt:{'gradient-type-stroke':'linear'}},
+          {name:'node', data:'nodes', x:'fx', y:'fy', path:'/shared/symbols/sdgs/', sym:'[SYMBOL]', size:25,
+            opt:{ev:{onMouseEnter:{element:{opacity:.5}, popup:{vals:['id']}}}}
+          },
+        ]
+      };
+
+      ['f','s','t'].forEach((scale, i) => { // add accessors
+        cfg.accessors[scale+'x'] = {domain:info.extents.x, range:'width'};
+        cfg.accessors[scale+'y'] = {domain:info.extents.y};
+      });
+
+      ['nodes','edges'].forEach((data, i) => { // add data
+        cfg.data.push({name:data, content:info[data]});
+      });
+
+      // vis = new Hive.Visualization(cfg);
+      window.THREE = THREE;
+      let cfg0 = chooserInit(cfg)
+      cfg0.element.zoom = true;
+      cfg0.element.drag = true;
+      vis.graph(cfg0);
+      window.vis = vis; // share w chooser
+    }
+
+    function selectChange() {
+      var selectBox = document.getElementById("layout");
+      var type = selectBox.options[selectBox.selectedIndex].getAttribute('data-type');
+      var subt = selectBox.options[selectBox.selectedIndex].getAttribute('data-subt');
+      setLayout(type, subt);
+    }
+
+    function setLayout(type, subtype) {
+      // If you reuse the same container, you must destroy the previous instance.
+      let instance = document.querySelector("#visualization > canvas, #visualization > svg");
+      if (instance && instance._visualization)
+        instance._visualization.destroy();
+
+      document.getElementById("visualization").innerHTML = '';  // rm prev nodes
+
+      var url = '/shared/data/UN-Reports/SDG/';
+      let graphCfg = {
+        nodes_file:url + 'sdg-nodes.csv',
+        edges_file:url + 'sdg-edges.csv',
+        id_field:'NID',
+        source_field:'PARENTID',
+        target_field:'ID',
+        // type: type,
+        // subtype: subtype
+      }
+      graphCfg.type = type;
+      graphCfg.subtype = subtype;
+
+      let gWorker = new graphWorker(graphCfg)
+    }
+
+    document.getElementById("layout").addEventListener("change", selectChange);
+    setLayout('elk', 'box');
+  </script>
+
+
+</body>

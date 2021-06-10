@@ -1,0 +1,98 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+
+
+
+
+  <!-- Hive Popups -->
+
+  <script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import "../dist/meta/contour.js"
+
+    let vis = new Hive.Visualization();
+    // vis.templates.opt.basic.guide.right.container = {item:{label:{text:{format:d=>5}}}}
+    let frames = vis.templates.chart({basic:{guide:{right:{container:{item:{label:{text:{format:d=>5}}}}}}}});
+    Hive.templates.getCfgNode(frames, "chart center-container > view").triggerStateChange = true;
+
+    // Example of data attached frame
+    Hive.templates.getCfgNode(frames, "chart center-container > view").user = {
+      contour:{ // per frame user info
+        in:'raw', out:'density', // data names
+        x:'waiting', y:'eruptions',  // scale names
+        opts:{bandwidth:30, thresholds:30} // d3 contour opts
+      }
+    };
+
+    // When frame changed (resized), This will be called to re-gen data
+    function updateFrameAttachedData(ev, frame, sz, user) {
+      if(ev=='FRAME_CHANGED') {  // Frame size changed
+        let content = Hive.Type.contour(vis, sz, user.contour); // generate contour data
+      }
+    }
+
+    let cfg = {
+      onStateChange:updateFrameAttachedData,
+      accessors:{
+        color:{field:'value', type:'linear', range:[0,1], postFilter:d3.interpolateSpectral},
+        waiting:{range:'width'}, // domain auto-set
+        eruptions:{}
+      },
+      frames:frames,
+      data:[
+        {name:'raw', url:'./data/faithful.tsv'},
+        {name:'density'},
+      ],
+      draw:[
+        {name:'label', content:'Old Faithful Eruptions', opt:{text:{textAnchor:'bm', pad:0, justify:'center'}}},
+        {name:'axis', data:'raw', scale:'waiting'},  // 'data' is provided to demonstrate auto-extent
+        {name:'label', frame:'chart bottom > text', font:{size:10}, content:'Idle (min)', opt:{text:{textAnchor:'bm'}}},
+        {name:'axis', scale:'eruptions', opt:{orientation:'left'}},
+        {name:'label', frame:'chart left > text', font:{size:10}, content:'Erupting (min)', opt:{text:{width:100, textAnchor:'bm', rotate:270, justify:'center'}}},
+        {name:'geopath', data:'density', attr:{fill:'color', 'stroke-width':1}, opt:{clip:true},
+          guide:[{key:"attr.fill", title:"Threshold:", qty:4, frame:'basic guide-right', itemsHeightMax:'50%', labelOpt:{opt:{text:{pad:5, format:d=>Number(d).toFixed(5)}}}}]
+        },
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>

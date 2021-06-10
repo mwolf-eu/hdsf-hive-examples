@@ -1,0 +1,128 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+
+</head>
+
+<body>
+
+  <h2>Modified Alabama Population data by county. data.gov - co-est2019-annres-01.xlsx</h2>
+  <h3>Radial: Filtered labels. Rectangular: All labels.</h3>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import "../dist/meta/hierarchical.js";
+
+
+    let data = [ // Modified Alabama Population data.
+      {id:"Autauga", region:"Elmore", pop:"54571"},
+      {id:"Baldwin", region:"Elmore", pop:"182265"},
+      {id:"Barbour", region:"Elmore", pop:"27457"},
+      {id:"Bibb", region:"Elmore", pop:"22915"},
+      {id:"Blount", region:"Elmore", pop:"57322"},
+      {id:"Bullock", region:"Elmore", pop:"10914"},
+      {id:"Butler", region:"Elmore", pop:"20947"},
+      {id:"Calhoun", region:"Jackson", pop:"118572"},
+      {id:"Chambers", region:"Jackson", pop:"34215"},
+      {id:"Cherokee", region:"Jackson", pop:"25989"},
+      {id:"Chilton", region:"Jackson", pop:"43643"},
+      {id:"Choctaw", region:"Jackson", pop:"13859"},
+      {id:"Clarke", region:"Jackson", pop:"25833"},
+      {id:"Clay", region:"Jackson", pop:"13932"},
+      {id:"Coosa", region:"Macon", pop:"11539"},
+      {id:"Covington", region:"Macon", pop:"37765"},
+      {id:"Crenshaw", region:"Macon", pop:"13906"},
+      {id:"Cullman", region:"Macon", pop:"80406"},
+      {id:"Dale", region:"Macon", pop:"50251"},
+      {id:"Dallas", region:"Macon", pop:"43820"},
+      {id:"DeKalb", region:"Macon", pop:"71109"},
+      {id:"Elmore", region:null, pop:"10000"},  // parent pop == qty NOT accounted for by leafs. Is NOT a sum of children.
+      {id:"Jackson", region:null, pop:"50000"},
+      {id:"Macon", region:null, pop:"10000"},
+      {id:"Cleburne", region:"Lamar", pop:"14972"},
+      {id:"Coffee", region:"Lamar", pop:"49948"},
+      {id:"Colbert", region:"Lamar", pop:"54428"},
+      {id:"Conecuh", region:"Lamar", pop:"13228"},
+      {id:"Lamar", region:null, pop:"0"},
+    ]
+
+    // the conversion is pegged to a domain of [0,1000] per dimension
+    // With decimal places it's probably enough resolution for all geoms.
+    let root = Hive.Type.heirarchical.convert(data, 'id', 'region', 'pop', 'Total')
+
+    let dom = 1000; // a full circle by the wrangler scale
+    let radlblroot = root.filter(function(d) { // you COULD filter out smaller slices here
+          // return (d.x1 - d.x0 > dom*0.005); // 0.005 radians = 0.29 degrees
+          return (d.x1 - d.x0 > dom*0.02);
+      });
+
+    let colorD = d3.extent(root, d => d.value)
+    let fsize = 10;
+    let vis;
+
+    let cfg = {
+      element:{
+        selector:'#visualization1',
+        style:{
+          width:'70vw',
+          height:'60vh'
+        },
+        renderer:{name:'svg'}
+      },
+      accessors:{
+        b:{field:'b', domain:[0,1000]},
+        y:{field:'x1', domain:[0,1000]},
+        w:{field:'ydif', domain:[0,1000], range:'width'},
+        lx:{domain:[0,1000], range:'width'},
+        ly:{domain:[0,1000]},
+        c:{field:'value', domain:colorD, type:'log', range:['#63a6d6','#124488']},
+      },
+      data:[
+        {name:'root', content:root}
+      ],
+      draw:[
+        {name:'rectangle', frame:'basic center-view', x:'lx', y:'y', width:'w', v:'b', attr:{fill:'c'}},
+        {name:'label', data:'root', frame:'basic center-view', x:'lx', y:'ly', content:'[id]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'rm'}}},
+        {name:'label', data:'root', frame:'basic center-view', x:'lx', y:'ly', content:'[value]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'lm'}}}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis = new Hive.Visualization().setTemplate('basic').graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+</body>

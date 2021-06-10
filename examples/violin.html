@@ -1,0 +1,126 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+<script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <!-- <script type="text/javascript" src="../../twod/sgs.js"></script> -->
+  <!-- Create a div where the graph will take place -->
+  <d2>From https://www.d3-graph-gallery.com/graph/violin_basicHist.html</h2>
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+    // Read the data and compute summary statistics for each specie
+
+    let yExtent = [3.5,8];
+    let xExtent = [];
+
+    function wrangle(data) {
+      // Important: how many bins approx are going to be made? It is the 'resolution' of the violin plot
+      let th = d3.scaleLinear().domain(yExtent).ticks(20);
+      var histogram = d3.histogram()
+            .domain(yExtent)
+            .thresholds(th)
+            .value(d => d);
+
+      // Compute the binning for each group of the dataset
+      var sumstat = d3.nest()  // nest function allows to group the calculation per level of a factor
+        .key(k => k.Species)
+        .rollup(function(d) {   // For each key..
+          let input = d.map(function(g) { return g.Sepal_Length;})    // Keep the variable called Sepal_Length
+          let bins = histogram(input)   // And compute the binning on it.
+          return(bins)
+        })
+        .entries(data)
+
+      var maxes = sumstat.map((item, i) => d3.max(sumstat[i].value, d=>d.length));
+      var maxNum = d3.max(maxes); // Max of all bins
+
+      // assemble needed values
+      let adata = sumstat.map(d => {
+        let arr = []
+        d.value.forEach((item, i) => {
+          arr.push({key:d.key, x0:item.x0, len:item.length})
+        });
+        return arr;
+      }).flat();
+
+      let finalData = [];
+      let finalExtent = [];
+      let adataByKey = d3.nest().key(k => k.key).object(adata);
+
+      Object.keys(adataByKey).forEach((item, i) => {
+        let meta = adataByKey[item].map((d,i) => {  // get dereference of first and last data objs
+          if (d.len>0) return i;
+          return -1;
+        }).filter(d => d>-1);
+
+        let filtered = adataByKey[item].filter((d,i) => {
+          return (i >= meta[0] && i <= meta[meta.length-1]);
+        });
+
+        finalData.push(filtered);
+        finalExtent.push(d3.extent(adataByKey[item], d=>d.len));
+      });
+
+      xExtent.push(...d3.extent(finalExtent.flat()));
+
+      return finalData;
+    }
+
+    let vis;
+
+    let cfg = {
+      accessors:{
+        band:{field:'key', domain:["setosa", "versicolor", "virginica"], type:'band', range:'width'},
+        x:{field:'len', domain:xExtent, range:[0,1]}, // need a normalized x
+        y:{field:'x0', domain:yExtent}
+      },
+      data:[{url:'./data/iris.csv', handler:wrangle}],
+      draw:[
+        {name:'axis', scale:'band'},
+        {name:'axis', frame:'chart left > axis', scale:'y', opt:{orientation:'left'}},
+        {name:'violin', x:'x', y:'y', curve:d3.curveCatmullRom, band:'band', attr:{fill:'#69b3a2', 'stroke-width':2}}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis = new Hive.Visualization(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+</body>
+</html>

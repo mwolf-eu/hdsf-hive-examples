@@ -1,0 +1,95 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="format-detection" content="telephone=no">
+  <mmeta name="msapplication-tap-highlight" content="no">
+  <mmeta name="viewport" content="user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1,width=device-width">
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
+  <title>HARVESTER</title>
+
+  <!-- Renderers -->
+  <script type="text/javascript" src="../libs/d3/d3.js"></script>
+  <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
+  
+
+  
+
+  <!-- Hive Popups -->
+  
+  <script src='../../libs/svg-text.js'></script>
+  <script src="../../libs/popper.js"></script>
+  <script src="../../libs/tippy.js"></script>
+  <!-- Hive Core-->
+  <script type="module" src="../dist/hdsf-hive.js"></script>
+
+  <!-- Hive Util -->
+
+
+  <!-- Example Support Code  -->
+  <script type="module" src="./chooser.js"></script>
+</head>
+
+<body>
+
+  <div id="visualization" class="section-container"></div>
+
+  <script type="module">
+    'use strict'
+    import * as THREE from '../../libs/three.js/build/three.module.js';
+    import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+    import { opentype } from '../../libs/opentype.module.min.js';
+
+    import * as schemes from '../dist/schemes/index.js';
+    let colors = schemes.default.tableau.GreenOrangeTeal12;
+    let light = colors.filter((d,i) => i%2);
+    let dark = colors.filter((d,i) => !(i%2));
+    let vis = new Hive.Visualization();
+
+    let smData = [{"x":1,"y":2,"min":.7,"max":5.5,"lower":1,"upper":4.7,"notchLower":1.8,"notchUpper":3.2},
+                  {"x":2,"y":4,"min":3,"max":7.5,"lower":3.3,"upper":6.7,"notchLower":3.5,"notchUpper":5.2},
+                  {"x":3,"y":6,"min":2,"max":9.5,"lower":4,"upper":8.7,"notchLower":4.8,"notchUpper":7.2},
+                  {"x":4,"y":4,"min":2,"max":6.5,"lower":3,"upper":4.7,"notchLower":3.8,"notchUpper":4.2},
+                  {"x":5,"y":2,"min":.5,"max":4.5,"lower":1,"upper":2.7,"notchLower":1.8,"notchUpper":2.2}]
+
+    let frames = vis.templates.chart({viewData:{rotate:90}});
+    // An axis may exceed its bounding box if the tick text is too large.
+    // Add a margin to the right so the x Axis is not clipped.
+    // This is NOT necessary if the right guide was used.
+    Hive.templates.getCfgNode(frames, "basic left-container").attr.margin = ['edge-right', 2];
+
+    let cfg = {
+      frames:frames,
+      accessors:{
+        color:{field:'x', domain:[], type:'ordinal', range:light},
+        stroke:{field:'x', domain:[], type:'ordinal', range:dark},
+        x:{domain:[1,2,3,4,5], type:'band', range:'width'},
+        y:{domain:[0,10]},
+        min:{domain:[0,10]},
+        max:{domain:[0,10]},
+        lower:{domain:[0,10]},
+        upper:{domain:[0,10]},
+        notchLower:{domain:[0,10]},
+        notchUpper:{domain:[0,10]},
+        'axes-x':{domain:[1,2,3,4,5], type:'band'},
+        'axes-y':{domain:[0,10], range:'width'}
+      },
+      data:[{content:smData}],
+      draw:[
+        {name:'axis', scale:'axes-x', opt:{orientation:'left'}},
+        {name:'axis', scale:'axes-y'},
+        {name:'boxplot', attr:{fill:'color', stroke:'stroke'}, x:'x', y:'y',
+          min:'min', max:'max', lower:'lower', upper:'upper', notchLower:'notchLower', notchUpper:'notchUpper',
+          whiskerLen:.5}
+      ]
+    }
+
+    window.THREE = THREE;
+    let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    vis.graph(chooserInit(cfg), fonts);
+    window.vis = vis; // share w chooser
+  </script>
+
+
+</body>
