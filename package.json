@@ -15,7 +15,7 @@
     "build:hivemin": "browserify ./node_modules/hdsf-hive/src/core.js ./node_modules/hdsf-hive/src/plugins/* ./node_modules/hdsf-hive/src/renderers/svg.js -p esmify --standalone mod |  terser -mc -o dist/hdsf-hive.js",
     "build:min": "npm run build:hivemin && npm run build:flexmin && npm run cp",
     "build": "npm run build:hive && npm run build:flex && npm run cp",
-    "start": "mkdir -p dist && npm run build:min"
+    "start": "npm install && mkdir -p dist && npm run build"
   },
   "repository": {
     "type": "git",

@@ -2,15 +2,17 @@
 Examples for Hive.
 
 # Getting started
-Clone this repository
-Change directory to repository root
-Run: npm install
-Run: npm start
-Run: python3 -m http.server 8080 (or other server)
-Navigate to the examples folder
+- Install build requirements
+- Clone this repository
+- Change directory to repository root
+- Run: npm install
+- Run: npm start 
+- Run: python3 -m http.server 8080 (or other server)
+- Browse the examples folder
 
 # Build Requirements
 - Browserify (npm install browserify -g)
+- browser-resolve (npm i browser-resolve)
 - Terser (npm install terser -g)
 - Esmify (npm install esmify)
 
