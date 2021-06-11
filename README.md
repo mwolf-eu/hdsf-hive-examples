@@ -5,7 +5,6 @@ Examples for Hive.
 - Install build requirements
 - Clone this repository
 - Change directory to repository root
-- Run: npm install
 - Run: npm start 
 - Run: python3 -m http.server 8080 (or other server)
 - Browse the examples folder

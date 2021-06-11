@@ -28,6 +28,6 @@
   },
   "homepage": "https://github.com/mwolf-eu/hdsf-hive-examples#readme",
   "dependencies": {
-    "hdsf-hive": "^0.0.1"
+    "hdsf-hive": "^0.0.2"
   }
 }
