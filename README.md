@@ -1,10 +1,12 @@
 # hdsf-hive-examples
-Examples for Hive.
+Examples for Hive demonstrating most of the key features. 
+
+[Live Examples](https://mwolf-eu.github.io/hdsf-hive-examples/)
 
 # Getting started
-- Install build requirements
 - Clone this repository
 - Change directory to repository root
+- Install build requirements
 - Run: npm start 
 - Run: python3 -m http.server 8080 (or other server)
 - Browse the examples folder
