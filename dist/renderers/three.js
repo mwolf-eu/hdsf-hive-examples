@@ -1,15 +1,15 @@
 "use strict";
 
-import * as THREE from '../../libs/three.js/build/three.module.js';
-import { OrbitControls } from '../../libs/three.js/examples/jsm/controls/OrbitControls.js';
-// import { SVGLoader } from '../../libs/three.js/examples/jsm/loaders/SVGLoader.js';
+import * as THREE from '../libs/three.js/build/three.module.js';
+import { OrbitControls } from '../libs/three.js/examples/jsm/controls/OrbitControls.js';
+// import { SVGLoader } from '../libs/three.js/examples/jsm/loaders/SVGLoader.js';
 import { SVGLoader } from '../SVGLoader.js';  // a patched version to handle text / clipmaps
-import { SVGRenderer, SVGObject } from '../../libs/three.js/examples/jsm/renderers/SVGRenderer.js';
+import { SVGRenderer, SVGObject } from '../libs/three.js/examples/jsm/renderers/SVGRenderer.js';
 // text nodes
-import { TTFLoader } from '../../libs/three.js/examples/jsm/loaders/TTFLoader.js';
-import { opentype } from '../../libs/opentype.module.min.js';
+import { TTFLoader } from '../libs/three.js/examples/jsm/loaders/TTFLoader.js';
+import { opentype } from '../libs/opentype.module.min.js';
 
-import { BufferGeometryUtils } from '../../libs/three.js/examples/jsm/utils/BufferGeometryUtils.js';
+import { BufferGeometryUtils } from '../libs/three.js/examples/jsm/utils/BufferGeometryUtils.js';
 
 Hive.Renderer.three = class {
 
