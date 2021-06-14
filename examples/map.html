@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -82,7 +82,7 @@
       ],
       draw:[
         {name:'geopath', frame:'basic', data:'choro', projection:{'d3.geoMercator':{center:[-73.9679163, 40.7495461], scale:100000, rotate:[0,0,0]}},
-          attr:{fill:'color', stroke:"black", "stroke-width":2, "stroke-opacity":.6},
+          attr:{fill:'{color}', stroke:"black", "stroke-width":2, "stroke-opacity":.6},
           opt:{generate:{latitude:'lat', longitude:'lon'}}},
         // plugin defaults
         // -alt points: Create all?
@@ -90,7 +90,8 @@
         // getGeneratedAccessor will get a programmatically generated accessor.
         // In this case the functions are generated and named by the map.
         // getGeneratedAccessor has two args the function name and data field name.
-        {name:'point', frame:'basic', data:'points', x:'(lon,long)', y:'(lat,lata)', size:100, shape:'waypoint', attr:{fill:"#69b3a2", stroke:'black'}},
+        // {name:'point', frame:'basic', data:'points', x:'[lon,long]', y:'[lat,lata]', size:100, shape:'waypoint', attr:{fill:"#69b3a2", stroke:'black'}},
+        {name:'point', frame:'basic', data:'points', x:'[long]{lon}', y:'[lata]{lat}', size:100, shape:'{waypoint}', attr:{fill:"#69b3a2", stroke:'black'}},
       ]
     }
 

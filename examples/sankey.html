@@ -83,12 +83,12 @@
         {name:'edges'}
       ],
       draw:[
-        {name:'link', sx:'[sx]', sy:'[sy]', tx:'[tx]', ty:'[ty]', data:'edges', orientation:'linkHorizontal', attr:{'stroke-width':'[width]', stroke:'c', 'stroke-opacity':.5},
+        {name:'link', sx:'[sx]', sy:'[sy]', tx:'[tx]', ty:'[ty]', data:'edges', orientation:'linkHorizontal', attr:{'stroke-width':'[width]', stroke:'{c}', 'stroke-opacity':.5},
           opt:{title:'Source & Target Output (KWh)', orientation:'linkHorizontal', ev:{onMouseEnter:{popup:{vals:['name', 'value']}}, group:'edge'}}},
-        {name:'rectangle', frame:'basic view', x:'[x]', y:'[y]', v:'[height]', width:'[width]', data:'nodes', shape:1, attr:{fill:'c'},
+        {name:'rectangle', frame:'basic view', x:'[x]', y:'[y]', v:'[height]', width:'[width]', data:'nodes', shape:1, attr:{fill:'{c}'},
           opt:{title:'Source & Total Output (KWh)', ev:{onMouseEnter:{popup:{vals:['name', 'value']}}, group:'node'}}},
         {name:'label', frame:'basic view', x:'[midx]', y:'[midy]', data:'nodes', content:'[name]', offsetX:'offX', offsetY:(fontSize*fontCenterMass)/2,
-          attr:{'text-anchor':'[anchor]', 'font-size':fontSize}, opt:{text:{textAnchor:'textTA', pad:8, yOffset:-2.2}}}
+          attr:{'text-anchor':'[anchor]', 'font-size':fontSize}, opt:{text:{textAnchor:'{textTA}', pad:8, yOffset:-2.2}}}
       ]
     }
 

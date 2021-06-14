@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -58,10 +58,10 @@
       },
       data:[{content:smData}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'point', x:'x', y:'y', shape:'asterisk'},
-        {name:'errorbar', x:'x', y1:'min', y0:'max', attr:{stroke:'color', 'stroke-dasharray':'2'}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'point', x:'{x}', y:'{y}', shape:'asterisk'},
+        {name:'errorbar', x:'{x}', y1:'{min}', y0:'{max}', attr:{stroke:'{color}', 'stroke-dasharray':'2'}},
       ]
     }
 

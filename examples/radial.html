@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -64,7 +64,7 @@
     let ringLabel = {name:'ringLabel', content:smData.map(e => {return {angle:e.angle, radius:((numRings-1)*step)+step+(step*labelOffset)}})};
 
     // ring draw objs
-    let ringDraw = ringData.map(d => {return {name:'line', frame:view, data:d.name, x:'axisX', y:'axisY', curve:d3.curveCardinalClosed, attr:{stroke:"#aaa"}}});
+    let ringDraw = ringData.map(d => {return {name:'line', frame:view, data:d.name, x:'{axisX}', y:'{axisY}', curve:d3.curveCardinalClosed, attr:{stroke:"#aaa"}}});
 
     // line data objs
     let lineData = smData.map((d,i) => {
@@ -72,7 +72,7 @@
     })
 
     // line draw objs
-    let lineDraw = lineData.map(d => {return {name:'line', frame:view, data:d.name, x:'axisX', y:'axisY', attr:{stroke:"#ccc", 'stroke-dasharray':3}}});
+    let lineDraw = lineData.map(d => {return {name:'line', frame:view, data:d.name, x:'{axisX}', y:'{axisY}', attr:{stroke:"#ccc", 'stroke-dasharray':3}}});
 
     // straight label data content
     let labelDataContent = ringData.map((d,i) => {return {angle:lineData[0].content[0].angle, radius:d.content[0].radius}});
@@ -128,15 +128,15 @@
       draw:[
         ...ringDraw,
         ...lineDraw,
-        {name:'line', frame:view, x:'rx', y:'ry', curve:d3.curveCardinalClosed},
-        {name:'area', frame:view, x0:'rx0', y0:'ry0', x1:'rx1', y1:'ry1', curve:d3.curveCardinalClosed, attr:{fill:'rgb(11,44,63)', opacity:.1}},
-        {name:'label', frame:view, data:'label', content:'[radius]', x:'axisX', y:'axisY', attr:{fill:"DodgerBlue"}, opt:{text:{pad:-10, textAnchor:'tm'}}},
-        {name:'rectangle', frame:view, x:0, y:'barRadius', width:8, rotate:'barRotate', attr:{'fill-opacity':0.5}},
-        {name:'point', shape:1, size:50, frame:view,  x:'rx', y:'ry', attr:{fill:'red'}},
+        {name:'line', frame:view, x:'{rx}', y:'{ry}', curve:d3.curveCardinalClosed},
+        {name:'area', frame:view, x0:'{rx0}', y0:'{ry0}', x1:'{rx1}', y1:'{ry1}', curve:d3.curveCardinalClosed, attr:{fill:'rgb(11,44,63)', opacity:.1}},
+        {name:'label', frame:view, data:'label', content:'[radius]', x:'{axisX}', y:'{axisY}', attr:{fill:"DodgerBlue"}, opt:{text:{pad:-10, textAnchor:'tm'}}},
+        {name:'rectangle', frame:view, x:0, y:'{barRadius}', width:8, rotate:'{barRotate}', attr:{'fill-opacity':0.5}},
+        {name:'point', shape:1, size:50, frame:view,  x:'{rx}', y:'{ry}', attr:{fill:'red'}},
         // {name:'label', frame:view, data:'ring2', content:'[angle]', format:((d) => parseInt(Math.round((d * 180 / Math.PI)))), x:'axisX', y:'axisY',
         //   offsetX:'labelXOffset', offsetY:'labelYOffset', attr:{fill:"#333333", 'text-anchor':'textAnchor', 'font-size':fontSize}, opt:{text:{format:d=>parseInt(Math.round((d * 180 / Math.PI)))}}},
 
-        {name:'label', frame:view, data:'ringLabel', content:'[angle]', x:'axisX', y:'axisY',
+        {name:'label', frame:view, data:'ringLabel', content:'[angle]', x:'{axisX}', y:'{axisY}',
           attr:{fill:"#333333", 'font-size':fontSize}, opt:{text:{textAnchor:'mm', format:d => String(parseInt(Math.round((d * 180 / Math.PI)))) }}},
 
       ]

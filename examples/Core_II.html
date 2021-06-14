@@ -57,8 +57,8 @@
       cfg.data.push({name:frame.id+'-data', content:data});
       vis.setAccessor(`${frame.id}-y`, {field:'price', domain:[0,d3.max(data, d=>d.price)]})
       cfg.draw.push({name:'label', frame:frame.id+'-basic title > text', content:data[0].symbol, opt:{text:{textAnchor:'bm'}}});
-      cfg.draw.push({name:'area', data:frame.id+'-data', frame:frame.id+'-basic center-view', x:'x', y:`${frame.id}-y`, y1:0,
-        attr:{fill:'areaColor', stroke:'grey', 'stroke-width':1}});
+      cfg.draw.push({name:'area', data:frame.id+'-data', frame:frame.id+'-basic center-view', x:'{x}', y:`{${frame.id}-y}`, y1:0,
+        attr:{fill:'{areaColor}', stroke:'grey', 'stroke-width':1}});
     }
 
     function wrangle(data) {

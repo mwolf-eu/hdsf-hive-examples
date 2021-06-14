@@ -78,11 +78,11 @@
       ],
       draw:[
         {name:'label', content:'Old Faithful Eruptions', opt:{text:{textAnchor:'bm', pad:0, justify:'center'}}},
-        {name:'axis', data:'raw', scale:'waiting'},  // 'data' is provided to demonstrate auto-extent
+        {name:'axis', data:'raw', scale:'{waiting}'},  // 'data' is provided to demonstrate auto-extent
         {name:'label', frame:'chart bottom > text', font:{size:10}, content:'Idle (min)', opt:{text:{textAnchor:'bm'}}},
-        {name:'axis', scale:'eruptions', opt:{orientation:'left'}},
+        {name:'axis', scale:'{eruptions}', opt:{orientation:'left'}},
         {name:'label', frame:'chart left > text', font:{size:10}, content:'Erupting (min)', opt:{text:{width:100, textAnchor:'bm', rotate:270, justify:'center'}}},
-        {name:'geopath', data:'density', attr:{fill:'color', 'stroke-width':1}, opt:{clip:true},
+        {name:'geopath', data:'density', attr:{fill:'{color}', 'stroke-width':1}, opt:{clip:true},
           guide:[{key:"attr.fill", title:"Threshold:", qty:4, frame:'basic guide-right', itemsHeightMax:'50%', labelOpt:{opt:{text:{pad:5, format:d=>Number(d).toFixed(5)}}}}]
         },
       ]

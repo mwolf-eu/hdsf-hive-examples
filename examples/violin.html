@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -111,9 +111,9 @@
       },
       data:[{url:'./data/iris.csv', handler:wrangle}],
       draw:[
-        {name:'axis', scale:'band'},
-        {name:'axis', frame:'chart left > axis', scale:'y', opt:{orientation:'left'}},
-        {name:'violin', x:'x', y:'y', curve:d3.curveCatmullRom, band:'band', attr:{fill:'#69b3a2', 'stroke-width':2}}
+        {name:'axis', scale:'{band}'},
+        {name:'axis', frame:'chart left > axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'violin', x:'{x}', y:'{y}', curve:d3.curveCatmullRom, band:'{band}', attr:{fill:'#69b3a2', 'stroke-width':2}}
       ]
     }
 

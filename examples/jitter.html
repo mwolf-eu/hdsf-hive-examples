@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -51,11 +51,11 @@
       },
       data:[{content:smData}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'point', id:'normal', x:'x', y:'y'},
-        {name:'point', id:'jitter', x:'x', y:'y', jitter:.5, attr:{fill:'orange'}},
-        {name:'point', id:'jitterier', x:'x', y:'y', jitter:1, attr:{fill:'red'}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'point', id:'normal', x:'{x}', y:'{y}'},
+        {name:'point', id:'jitter', x:'{x}', y:'{y}', jitter:.5, attr:{fill:'orange'}},
+        {name:'point', id:'jitterier', x:'{x}', y:'{y}', jitter:1, attr:{fill:'red'}},
       ]
     }
 

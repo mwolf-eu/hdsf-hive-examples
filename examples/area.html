@@ -57,10 +57,10 @@
       },
       data:[{name:'gradientCurve', content:smData1}],
       draw:[
-        {name:'axis', scale:'x', opt:{text:{width:100}}},
-        {name:'axis', scale:'y', opt:{orientation:'left', text:{width:100, yOffset:-2.5}}},
-        {name:'axis', scale:'y', opt:{orientation:'left', gridColor:'grey'}},
-        {name:'area', data:'gradientCurve', x:'x', y:'y', y1:0, curve:d3.curveStep,
+        {name:'axis', scale:'{x}', opt:{text:{width:100}}},
+        {name:'axis', scale:'{y}', opt:{orientation:'left', text:{width:100, yOffset:-2.5}}},
+        {name:'axis', scale:'{y}', opt:{orientation:'left', gridColor:'grey'}},
+        {name:'area', data:'gradientCurve', x:'{x}', y:'{y}', y1:0, curve:d3.curveStep,
           attr:{fill:[{'stop-color':'red'},{'stop-color':'blue'}]}, opt:{'gradient-type-fill':'vertical'}}
       ]
     }

@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -59,9 +59,9 @@
       },
       data:[{content:smData}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'rectangle', x:'x', y:'y', attr:{'stroke-width':3, 'stroke-dasharray':4}}
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'rectangle', x:'{x}', y:'{y}', attr:{'stroke-width':3, 'stroke-dasharray':4}}
       ]
     }
 
@@ -71,7 +71,7 @@
     cfg.onStateChange = finish;
     cfg.element = {renderer:{name:'svg'}}
     cfg.draw = [
-      {name:'point', x:'x', y:'y'}
+      {name:'point', x:'{x}', y:'{y}'}
     ]
 
     let c1 = new Hive.Visualization(cfg);

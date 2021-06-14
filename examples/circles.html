@@ -60,9 +60,9 @@
       },
       data:[{content:smData1}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'point', x:'x', y:'y', shape:'circle', size:'sz', attr:{fill:'c'},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'point', x:'{x}', y:'{y}', shape:'circle', size:'{sz}', attr:{fill:'{c}'},
           guide:[
             {key:"attr.fill", title:"Fill", qty:3, frame:'basic > guide-right'},
             {key:"size", title:"Size", qty:4, frame:'basic guide-right', itemsHeightMax:60}

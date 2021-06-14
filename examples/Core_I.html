@@ -11,12 +11,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
   <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -90,24 +90,24 @@
       draw:[
         {name:'label', content:'Technology Stocks', opt:{text:{textAnchor:'bm'}}},
 
-        {name:'axis', scale:'x', opt:{orientation:'top'}},
-        {name:'axis', scale:'y', opt:{orientation:'right'}},
-        {name:'axis', scale:'x', opt:{orientation:'bottom'}},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'axis', frame:'chart center-container > view', scale:'x', opt:{orientation:'bottom', gridColor:'lightgrey'}},
-        {name:'axis', frame:'chart center-container > view',scale:'y', opt:{orientation:'left', gridColor:'lightgrey'}},
+        {name:'axis', scale:'{x}', opt:{orientation:'top'}},
+        {name:'axis', scale:'{y}', opt:{orientation:'right'}},
+        {name:'axis', scale:'{x}', opt:{orientation:'bottom'}},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'axis', frame:'chart center-container > view', scale:'{x}', opt:{orientation:'bottom', gridColor:'lightgrey'}},
+        {name:'axis', frame:'chart center-container > view',scale:'{y}', opt:{orientation:'left', gridColor:'lightgrey'}},
 
         {name:'label', frame:'chart top text', content:'Year', attr:{'font-size':9}, opt:{text:{textAnchor:'bm'}}},
         {name:'label', frame:'chart right text', content:'Market Cap ($B)', attr:{'font-size':9}, opt:{text:{textAnchor:'bm', rotate:90}}},
         {name:'label', frame:'chart bottom text', content:'Year', attr:{'font-size':9}, opt:{text:{textAnchor:'bm'}}},
         {name:'label', frame:'chart left text', content:'Market Cap ($B)', attr:{'font-size':9}, opt:{text:{textAnchor:'bm', rotate:270}}},
 
-        {name:'line', x:'x', y:'y', curve:'lineCurve', attr:{stroke:'lineColor', 'stroke-dasharray':'lineDash'},
+        {name:'line', x:'{x}', y:'{y}', curve:'{lineCurve}', attr:{stroke:'{lineColor}', 'stroke-dasharray':'{lineDash}'},
           guide:[{key:"attr.stroke", title:"Firms", qty:4, frame:'basic guide-right', labelOpt:{opt:{text:{yOffset:-4}}}, titleOpt:{opt:{text:{yOffset:-1}}}},
                  {key:"attr.stroke-dasharray"}
                ]},
 
-        {name:'point', shape:'pointShape', data:'flatData', x:'x', y:'y', attr:{fill:'pointColor'},
+        {name:'point', shape:'{pointShape}', data:'flatData', x:'{x}', y:'{y}', attr:{fill:'{pointColor}'},
           opt:{ev:{onMouseEnter:{element:{opacity:.5},
           popup:{title: 'Market Cap (Billions)', vals:['symbol','price'], handler:d=>Hive.popup.formatLongTitleColor(d)}}}},
           guide:[{key:["attr.fill","shape"]}]}

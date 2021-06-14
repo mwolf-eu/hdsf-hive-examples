@@ -120,12 +120,12 @@ Hive.guide = class {
               gItemContainer.children.push(gItem);
 
               // gradient
-              guideDrawObjs.push({name:'area', frame:gicId+' gradient', data:'_area-fill_', attr:{fill:grad}, x:'_builtin-x_', y0:'_builtin-y_', y1:0});
+              guideDrawObjs.push({name:'area', frame:gicId+' gradient', data:'_area-fill_', attr:{fill:grad}, x:'{_builtin-x_}', y0:'{_builtin-y_}', y1:0});
 
               // ticks
               let gradIDs = this.templates.constructor.getCfgNode(gItem, gItem.id+' gradient').children.map(d=>d.id);
               gradIDs.forEach((d, i) => {
-                guideDrawObjs.push({name:'area', frame:d, data:'_area-fill_', attr:{fill:'white', opacity:.6}, x:'_builtin-x_', y0:'_builtin-y_', y1:0});
+                guideDrawObjs.push({name:'area', frame:d, data:'_area-fill_', attr:{fill:'white', opacity:.6}, x:'{_builtin-x_}', y0:'{_builtin-y_}', y1:0});
               });
 
               // labels
@@ -171,13 +171,13 @@ Hive.guide = class {
               if (localDrawObjs.length < (sa().domain().length)) {
                 switch (v.key) { // put drawable in first
                   case 'attr.stroke-dasharray':
-                    localDrawObjs.push({name:'line', frame:`${nodeSel}icon`, data:'_guide-line_', attr:{'stroke-dasharray':val, 'stroke-width':3}, x:'_builtin-x_', y:'_builtin-y_'});
+                    localDrawObjs.push({name:'line', frame:`${nodeSel}icon`, data:'_guide-line_', attr:{'stroke-dasharray':val, 'stroke-width':3}, x:'{_builtin-x_}', y:'{_builtin-y_}'});
                     break;
                   case 'shape':
                     localDrawObjs.push({name:'point', frame:`${nodeSel}center`, data:'_guide-center_', attr:{}, size:10, shape:val, x:0, y:0});
                     break;
                   default:
-                    let area = {name:'area', frame:`${nodeSel}icon`, data:'_area-fill_', attr:{"stroke-width":.7}, x:'_builtin-x_', y0:'_builtin-y_', y1:0};
+                    let area = {name:'area', frame:`${nodeSel}icon`, data:'_area-fill_', attr:{"stroke-width":.7}, x:'{_builtin-x_}', y0:'{_builtin-y_}', y1:0};
                     if (v.key == 'attr.fill') area.attr.fill = val;
                     if (v.key == 'attr.stroke') area.attr.stroke = val;
                     localDrawObjs.push(area);

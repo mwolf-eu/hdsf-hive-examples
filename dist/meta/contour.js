@@ -6,7 +6,7 @@ Hive.Type.contour = function (vis, sz, cfg) {
   let out = data.filter(d => d.name == cfg.out)[0];
 
   let rk = {'bbox.w':sz.w, 'bbox.h':sz.h, 'translate.x':sz.x, 'translate.y':sz.y};
-  let ck = [{key:'x', accDes:cfg.x}, {key:'y', accDes:cfg.y}];
+  let ck = [{key:'x', accDes:`{${cfg.x}}`}, {key:'y', accDes:`{${cfg.y}}`}];
   let sa = vis.tk.accessors.getScaledAccessors(ck, rk, inp.content);
 
   let x = sa.x().range([0,sz.w]); // update range

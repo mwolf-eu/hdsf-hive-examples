@@ -13,33 +13,13 @@
 <script type="text/javascript" src="../libs/d3/d3.js"></script>
 <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
 
-
-<!-- <script type="text/javascript" src="/libs/h_tk_vendor/sugar.js"></script> -->
-<!-- <script type="text/javascript" src="/h_tk/workflow/defs/q.js"></script> -->
-
-
-<!-- HTK core -->
-<!-- <script stype="text/javascript" src="/h_tk/main.js"></script> -->
-<!-- <script>
-H = {
-  Array:{},
-  Assert:{},
-  Obj:{},
-  Opts:{},
-  Coerce:{},
-}
-</script> -->
-
-
 <script type="text/javascript" src="../libs/graph//htk-graph-shim.js"></script>
 
 <!-- ELK -->
-<!-- <script type="text/javascript" src="/graphlib-dot.js"></script> -->
 <script type="text/javascript" src="../libs/graph/elk/elk-bundled.js"></script>
 <!-- GRAPHVIS -->
 <script type="text/javascript" src="../libs/graph/graphvis/viz.js"></script>
 <script type="text/javascript" src="../libs/graph/graphvis/full.render.js"></script>
-
 <!-- ccnetvis -->
 <script type="text/javascript" src="../libs/graph/ccnetviz/0-core-utils.js"></script>
 <script type="text/javascript" src="../libs/graph/ccnetviz/0-layout_utils.js"></script>
@@ -47,25 +27,8 @@ H = {
 <script type="text/javascript" src="../libs/graph/ccnetviz/grid.js"></script>
 <script type="text/javascript" src="../libs/graph/ccnetviz/hive.js"></script>
 <script type="text/javascript" src="../libs/graph/ccnetviz/versinus.js"></script>
-<!-- <script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/positioners/ccnet-positions-2d.js"></script> -->
-
-<!-- <script type="text/javascript" src="/h_tk/collections/structures-complex.js"></script>
-<script type="text/javascript" src="/h_tk/collections/defs/structures/complex/standard-graph.js"></script>
-<script type="text/javascript" src="/h_tk/layouts/graph/defs/common/transforms/graph-to-dot.js"></script>
-<script type="text/javascript" src="/h_tk/layouts/graph/defs/2d/positioners/graphviz-positions-2d.js"></script>
-
-<script type="text/javascript" src="/libs/h_tk_dist/unmin/harvest-core.js"></script>
-<script type="text/javascript" src="/libs/h_tk_dist/unmin/wranglers-format-number.js"></script>
-
-<script type="text/javascript" src="/h_tk/output/img-file.js"></script>
-<script type="text/javascript" src="/h_tk/output/defs/exporters.js"></script>
-<script type="text/javascript" src="/h_tk/makers/2d/axes.js"></script>
-<script type="text/javascript" src="/h_tk/makers/common/scales.js"></script>
-<script type="text/javascript" src="/h_tk/core/event/pubsub.js"></script>
-<script type="text/javascript" src="/h_tk/makers/2d/labels.js"></script> -->
 
 <!-- Hive Popups -->
-
 <script src='../libs/svg-text.js'></script>
 <script src="../libs/popper.js"></script>
 <script src="../libs/tippy.js"></script>
@@ -183,11 +146,11 @@ H = {
         },
         data:[{name:'line', content:[{x:0,y:0},{x:500,y:500}]}],
         draw:[
-          {name:'link', data:'edges', sx:'sx', sy:'sy', tx:'tx', ty:'ty', attr:{
+          {name:'link', data:'edges', sx:'{sx}', sy:'{sy}', tx:'{tx}', ty:'{ty}', attr:{
             stroke:[{'stop-color':'hsl(222,30%,20%)'},{'stop-color':'lightgreen'}],
             'stroke-width':2, 'stroke-opacity':.5
           }, opt:{'gradient-type-stroke':'linear'}},
-          {name:'node', data:'nodes', x:'fx', y:'fy', path:'shared/sdgs/', sym:'[SYMBOL]', size:25,
+          {name:'node', data:'nodes', x:'{fx}', y:'{fy}', path:'shared/sdgs/', sym:'[SYMBOL]', size:25,
             opt:{ev:{onMouseEnter:{element:{opacity:.5}, popup:{vals:['id']}}}}
           },
         ]

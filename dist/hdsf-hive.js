@@ -86,65 +86,124 @@ Hive.Accessors = class {
     keyPairs.forEach((kp) => {
       let k = kp.key;
       let accDes = kp.accDes;
-      if (accDes in this.cfg) {
-        let sa = this.scaleDict[accDes]; // set scaled accessor
-        let c = sa.cfg;
 
-        // Resolve draw cfg context specific domains & ranges
-        this.dynMethods.forEach((item, i) => {
-          if(item in c && typeof c[item] == 'string')
-            sa[item]( dynSetter[item](c[item], relKeys, sa) );
-          if((! (item in c)) && continuousDomains.includes(sa.cfg.type) && item == 'domain') { // auto extent
-            let ext = d3.extent(data, d=>d[sa.field]);
-            this.warnExtent(sa.field, ext);
-            c.domain = ext;  // UNSET THIS IF DATA CHANGES
-            sa[item](ext);
+      if (typeof accDes == 'string') {
+
+        function createSA(accDes) {
+          if (accDes in this.cfg) {
+            let sa = this.scaleDict[accDes]; // set scaled accessor
+            let c = sa.cfg;
+
+            // Resolve draw cfg context specific domains & ranges
+            this.dynMethods.forEach((item, i) => {
+              if(item in c && typeof c[item] == 'string')
+              sa[item]( dynSetter[item](c[item], relKeys, sa) );
+              if((! (item in c)) && continuousDomains.includes(sa.cfg.type) && item == 'domain') { // auto extent
+                let ext = d3.extent(data, d=>d[sa.field]);
+                this.warnExtent(sa.field, ext);
+                c.domain = ext;  // UNSET THIS IF DATA CHANGES
+                sa[item](ext);
+              }
+            });
+
+            let preF = (d) => d; // ready pre scaler filter
+            if ('preFilter' in this.cfg[accDes])
+            preF = this.cfg[accDes].preFilter
+
+            let postF = (d) => d; // ready post scaler filter
+            if ('postFilter' in this.cfg[accDes])
+            postF = (d,i,data) => {return this.cfg[accDes].postFilter(d,i,data)}
+
+            return (d,i) => {
+              if (d == undefined) return sa;
+              let val = d[sa.field];
+              if (val == undefined && 'data' in d)
+              val = d.data[sa.field];
+              return postF(sa(preF(val,i)), i, d);
+            } // is scaled object accessor
+          } else {
+            this.h.error("No scaled accessor named:", accDes);
           }
-        });
-
-        let preF = (d) => d; // ready pre scaler filter
-        if ('preFilter' in this.cfg[accDes])
-          preF = this.cfg[accDes].preFilter
-
-        let postF = (d) => d; // ready post scaler filter
-        if ('postFilter' in this.cfg[accDes])
-          postF = (d,i,data) => {return this.cfg[accDes].postFilter(d,i,data)}
-
-        saDict[k] = (d,i) => {
-          if (d == undefined) return sa;
-          let val = d[sa.field];
-          if (val == undefined && 'data' in d)
-            val = d.data[sa.field];
-          return postF(sa(preF(val,i)), i, d);
-        } // is scaled object accessor
-
-      } else { // is a string of some sort
-        if (typeof(accDes) == 'string') {
-          if (/^\[[\w-]*\]/g.test(accDes)) {
-            saDict[k] = d => {
-              if (!d) return {name:'getField'}
-              let val = d[accDes.slice(1,-1)];
-              if (val == 'undefined') val = d.data[accDes.slice(1,-1)];
-              return val   // is pre-calc col name
-            }
-            return;
-          }
-
-          if (/^\(.+\)/g.test(accDes)) {  // BUG: Having the current function will be a problem on zoom / rotate / etc
-            let args = accDes.slice(1,-1).split(',');
-            let context = {field:args[1]};
-            saDict[k] = this.generated.accessors[args[0]].bind(context);   // is pre-calc col name
-            return;
-          }
-
-          if (/\{.+\,.+\}/g.test(accDes)) { // bind accessor to specific domain value
-            let args = accDes.slice(1,-1).split(',');
-            saDict[k] = d => this.scaleDict[args[0]](args[1]);
-            return;
-          }
-
-          saDict[k] = d => accDes;    // is string constant
         }
+
+      // } else { // is a string of some sort
+        // if (typeof(accDes) == 'string') {
+
+          let val, sa, col; // val literal, scaled accessor, data col
+          function adParse(a) {
+            a.replace(/^[^\{\}\[\]]+|(\{[\w\-]+\})|(\[\w+\])/g,
+              d=>{
+                  if(/^[^\{\}\[\]]+$/.test(d)) val=d; // no diacritical marks == value
+                  if(/\{[\w\-]+\}/.test(d)) sa=d.slice(1,-1);  // {x} == scaled accessor
+                  if(/\[\w+\]/.test(d)) col=d.slice(1,-1); // [x] == data field
+              }
+            )
+          }
+
+          adParse(accDes);
+
+          // might have to include "" enclosure for literals to include []{}
+          if(val && !sa && !col) { // got literal value
+            saDict[k] = d => val;
+            return;
+          }
+
+          if(!val && sa && !col) { // got scaled accessor
+            saDict[k] = createSA.bind(this)(sa);
+            return;
+          }
+
+          if(!val && !sa && col){ // got field
+            saDict[k] = d => d[col];
+            return;
+          }
+
+          if(val && sa && !col) { // got value & scaled accessor
+            saDict[k] = d => this.scaleDict[sa](val);
+            return;
+          }
+
+          // BUG: Having the current function will be a problem on zoom / rotate / etc
+          if(!val && sa && col) { // got field and GENERATED scaled accessor
+            saDict[k] = this.generated.accessors[sa].bind({field:col});   // is pre-calc col name
+            return;
+          }
+
+          // // column
+          // if (/^\[[\w-]*\]/g.test(accDes)) {
+          //   saDict[k] = d => {
+          //     if (!d) return {name:'getField'}
+          //     let val = d[accDes.slice(1,-1)];
+          //     if (val == 'undefined') val = d.data[accDes.slice(1,-1)];
+          //     return val   // is pre-calc col name
+          //   }
+          //   return;
+          // }
+          //
+          // // column by accessor
+          // if (/^\[.+\]/g.test(accDes)) {  // BUG: Having the current function will be a problem on zoom / rotate / etc
+          //   let args = accDes.slice(1,-1).split(',');
+          //   let context = {field:args[1]};
+          //   saDict[k] = this.generated.accessors[args[0]].bind(context);   // is pre-calc col name
+          //   return;
+          // }
+          //
+          // // value by accessor
+          // if (/\(.+\,.+\)/g.test(accDes)) { // bind accessor to specific domain value
+          //   let args = accDes.slice(1,-1).split(',');
+          //   saDict[k] = d => this.scaleDict[args[0]](args[1]);
+          //   return;
+          // }
+          //
+          // // string value
+          // if (/\([\w-]*\)/g.test(accDes)) {
+          //   saDict[k] = d => accDes;    // is string constant
+          //   return
+          // }
+
+          this.h.error("Malformed scaled accessor:", accDes);
+          return;
+        // }
       }
 
       if (typeof(accDes) == 'object')
@@ -2402,8 +2461,8 @@ Hive.guide = class {
                 attr: {
                   fill: grad
                 },
-                x: '_builtin-x_',
-                y0: '_builtin-y_',
+                x: '{_builtin-x_}',
+                y0: '{_builtin-y_}',
                 y1: 0
               }); // ticks
 
@@ -2417,8 +2476,8 @@ Hive.guide = class {
                     fill: 'white',
                     opacity: .6
                   },
-                  x: '_builtin-x_',
-                  y0: '_builtin-y_',
+                  x: '{_builtin-x_}',
+                  y0: '{_builtin-y_}',
                   y1: 0
                 });
               }); // labels
@@ -2492,8 +2551,8 @@ Hive.guide = class {
                         'stroke-dasharray': val,
                         'stroke-width': 3
                       },
-                      x: '_builtin-x_',
-                      y: '_builtin-y_'
+                      x: '{_builtin-x_}',
+                      y: '{_builtin-y_}'
                     });
                     break;
 
@@ -2518,8 +2577,8 @@ Hive.guide = class {
                       attr: {
                         "stroke-width": .7
                       },
-                      x: '_builtin-x_',
-                      y0: '_builtin-y_',
+                      x: '{_builtin-x_}',
+                      y0: '{_builtin-y_}',
                       y1: 0
                     };
                     if (v.key == 'attr.fill') area.attr.fill = val;

@@ -65,10 +65,10 @@
       let rv = Hive.facet.addDefaultAxes(frames, ctxt, axesCfg); // add nodes
       if (ctxt.init) { // draw into nodes
         rv.left.ids.forEach((item, i) => {
-          cfg.draw.push({name:'axis', frame:item, scale:'y0', ticks:6, opt:{orientation:'left'}})
+          cfg.draw.push({name:'axis', frame:item, scale:'{y0}', ticks:6, opt:{orientation:'left'}})
         });
         rv.bottom.ids.forEach((item, i) => {
-          cfg.draw.push({name:'axis', frame:item, scale:'Region', attr:{'text':{transform:'rotate(45)', 'text-anchor':'start'}}, opt:{orientation:'bottom', text:{textAnchor:'tl', rotate:45, pad:5}}})
+          cfg.draw.push({name:'axis', frame:item, scale:'{Region}', attr:{'text':{transform:'rotate(45)', 'text-anchor':'start'}}, opt:{orientation:'bottom', text:{textAnchor:'tl', rotate:45, pad:5}}})
         });
       }
 
@@ -83,7 +83,7 @@
       genders.forEach((item, i) => {
         vis.getData().push({name:frame.id+`-data-${item}`, content:stack[i].map(d =>{return{...d, Gender:item}}) }); // push data then bars
         vis.getDraw().push({name:'label', frame:frame.id+'-basic title > text', content:data[0].Year, attr:{'font-size':titleFontSize}, opt:{text:{textAnchor:'bm'}}});
-        vis.getDraw().push({name:'rectangle', frame:frame.id+'-basic center-view', data:frame.id+`-data-${item}`, x:'Region', y:'y0', v:'y1', width:.6, attr:{fill:'color'},
+        vis.getDraw().push({name:'rectangle', frame:frame.id+'-basic center-view', data:frame.id+`-data-${item}`, x:'{Region}', y:'{y0}', v:'{y1}', width:.6, attr:{fill:'{color}'},
           guide:[{key:"attr.fill", title:"Gender", qty:4, frame:'basic > guide-right'}]
           });
         });

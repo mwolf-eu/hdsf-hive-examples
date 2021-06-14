@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -56,10 +56,10 @@
       let rv = Hive.facet.addDefaultAxes(frames, ctxt, axesCfg); // add nodes
       if (ctxt.init) { // draw into nodes
         rv.left.ids.forEach((item, i) => {
-          cfg.draw.push({name:'axis', frame:item, scale:'y', ticks:6, opt:{orientation:'left'}})
+          cfg.draw.push({name:'axis', frame:item, scale:'{y}', ticks:6, opt:{orientation:'left'}})
         });
         rv.bottom.ids.forEach((item, i) => {
-          cfg.draw.push({name:'axis', frame:item, scale:'x', opt:{orientation:'bottom'}})
+          cfg.draw.push({name:'axis', frame:item, scale:'{x}', opt:{orientation:'bottom'}})
         });
       }
 
@@ -75,9 +75,9 @@
       if (!data) return;
 
       cfg.data.push({name:frame.id+'-data', content:data});
-      cfg.draw.push({name:'area', data:'_area-fill_', id:'bgColor', frame:frame.id+' basic center-view', x:'_builtin-x_', y0:'_builtin-y_', y1:0, attr:{fill:'gainsboro', opacity:.5}});
+      cfg.draw.push({name:'area', data:'_area-fill_', id:'{bgColor}', frame:frame.id+' basic center-view', x:'{_builtin-x_}', y0:'{_builtin-y_}', y1:0, attr:{fill:'gainsboro', opacity:.5}});
       cfg.draw.push({name:'label', frame:frame.id+' title > text', content:data[0].year, attr:{'font-size':titleFontSize}, opt:{text:{textAnchor:'bm'}}});
-      cfg.draw.push({name:'rectangle', data:frame.id+'-data', frame:frame.id+' basic center-view', x:'x', y:'y', attr:{fill:'barColor'}});
+      cfg.draw.push({name:'rectangle', data:frame.id+'-data', frame:frame.id+' basic center-view', x:'{x}', y:'{y}', attr:{fill:'{barColor}'}});
     }
 
     function wrangle(data) {

@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -114,9 +114,9 @@
         {name:'root', content:root}
       ],
       draw:[
-        {name:'rectangle', frame:'basic center-view', x:'lx', y:'y', width:'w', v:'b', attr:{fill:'c'}},
-        {name:'label', data:'root', frame:'basic center-view', x:'lx', y:'ly', content:'[id]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'rm'}}},
-        {name:'label', data:'root', frame:'basic center-view', x:'lx', y:'ly', content:'[value]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'lm'}}}
+        {name:'rectangle', frame:'basic center-view', x:'{lx}', y:'{y}', width:'{w}', v:'{b}', attr:{fill:'{c}'}},
+        {name:'label', data:'root', frame:'basic center-view', x:'{lx}', y:'{ly}', content:'[id]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'rm'}}},
+        {name:'label', data:'root', frame:'basic center-view', x:'{lx}', y:'{ly}', content:'[value]', attr:{fill:'white', 'font-size':fsize}, opt:{text:{pad:2, textAnchor:'lm'}}}
       ]
     }
 

@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
   <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -77,10 +77,10 @@
       },
       data:[{content:smData}],
       draw:[
-        {name:'axis', scale:'axes-x', opt:{orientation:'left'}},
-        {name:'axis', scale:'axes-y'},
-        {name:'boxplot', attr:{fill:'color', stroke:'stroke'}, x:'x', y:'y',
-          min:'min', max:'max', lower:'lower', upper:'upper', notchLower:'notchLower', notchUpper:'notchUpper',
+        {name:'axis', scale:'{axes-x}', opt:{orientation:'left'}},
+        {name:'axis', scale:'{axes-y}'},
+        {name:'boxplot', attr:{fill:'{color}', stroke:'{stroke}'}, x:'{x}', y:'{y}',
+          min:'{min}', max:'{max}', lower:'{lower}', upper:'{upper}', notchLower:'{notchLower}', notchUpper:'{notchUpper}',
           whiskerLen:.5}
       ]
     }

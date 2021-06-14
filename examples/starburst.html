@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -110,13 +110,13 @@
         {name:'radlblroot', content:radlblroot}
       ],
       draw:[
-        {name:'arc', frame:'q1', startAngle:'x0', endAngle:'x1', innerRadius:'y0', outerRadius:'y1', attr:{fill:'c'},
+        {name:'arc', frame:'q1', startAngle:'{x0}', endAngle:'{x1}', innerRadius:'{y0}', outerRadius:'{y1}', attr:{fill:'{c}'},
         opt:{ev:{onMouseEnter:{element:{opacity:.8, scale:1.01}, popup:{vals:['value']}}}}},
-        {name:'label', frame:'q1', data:'radlblroot', x:'lrx', y:'lry', content:'[id]', attr:{
+        {name:'label', frame:'q1', data:'radlblroot', x:'{lrx}', y:'{lry}', content:'[id]', attr:{
           fill: 'white',
           'font-size':fsize
         }, opt:{text:{textAnchor:'bm', justify:'center'}}},
-        {name:'label', frame:'q1', data:'radlblroot', x:'lrx', y:'lry', content:'[value]', attr:{
+        {name:'label', frame:'q1', data:'radlblroot', x:'{lrx}', y:'{lry}', content:'[value]', attr:{
           fill: 'white',
           'font-size':fsize
         }, opt:{text:{textAnchor:'tm', justify:'center'}}}

@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <!-- <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script> -->
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
 <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -63,13 +63,13 @@
         {name:'point', content:smData2},
       ],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'rectangle', x:'x', y:'y'},
-        {name:'point', shape:5, title:'Group 0', x:'x', y:'y', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{element:{color:'red', opacity:.5, scale:1.8}, popup:{vals:['y']}}, group:'points'}}},
-        {name:'line', data:'line', x:'x', y:'y', curve:d3.curveCatmullRom, attr:{stroke:'red', 'stroke-width':3}},
-        {name:'point', title:'Group 1', data:'line', x:'x', y:'y', shape:1, size:20, attr:{fill:'red'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
-        {name:'point', title:'Group 1', data:'point', x:'x', y:'y', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'rectangle', x:'{x}', y:'{y}'},
+        {name:'point', shape:5, title:'Group 0', x:'{x}', y:'{y}', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{element:{color:'red', opacity:.5, scale:1.8}, popup:{vals:['y']}}, group:'points'}}},
+        {name:'line', data:'line', x:'{x}', y:'{y}', curve:d3.curveCatmullRom, attr:{stroke:'red', 'stroke-width':3}},
+        {name:'point', title:'Group 1', data:'line', x:'{x}', y:'{y}', shape:1, size:20, attr:{fill:'red'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+        {name:'point', title:'Group 1', data:'point', x:'{x}', y:'{y}', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
       ]
     }
 
@@ -91,11 +91,11 @@
         {name:'point', content:smData2}
       ],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'rectangle', x:'x', y:'y'},
-        {name:'point', shape:5, title:'Group 2', x:'x', y:'y', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
-        {name:'point', title:'Second Group', data:'point', x:'x', y:'y', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'rectangle', x:'{x}', y:'{y}'},
+        {name:'point', shape:5, title:'Group 2', x:'{x}', y:'{y}', attr:{fill:'#9CCC3C'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'points'}}},
+        {name:'point', title:'Second Group', data:'point', x:'{x}', y:'{y}', size:20, attr:{fill:'white'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
       ]
     }
 
@@ -116,10 +116,10 @@
         {name:'point', content:smData2}
       ],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'line', data:'point', x:'x', y:'y', curve:d3.curveCatmullRom, attr:{stroke:'blue', 'stroke-width':3}},
-        {name:'point', title:'Second Group', data:'point', x:'x', y:'y', size:20, attr:{fill:'lightblue'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'line', data:'point', x:'{x}', y:'{y}', curve:d3.curveCatmullRom, attr:{stroke:'blue', 'stroke-width':3}},
+        {name:'point', title:'Second Group', data:'point', x:'{x}', y:'{y}', size:20, attr:{fill:'lightblue'}, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}, group:'otherGroup'}}},
       ]
     }
 

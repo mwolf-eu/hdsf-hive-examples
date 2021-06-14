@@ -53,12 +53,12 @@
       },
       data:[{content:smData0}, {name:'gradientCurve', content:smData1}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
         // bind a scale to a specific value
-        {name:'line', x:'x', y:'y', attr:{stroke:'{c,b}', 'stroke-width':3, 'stroke-dasharray':4}},
-        {name:'point', x:'x', y:'y', attr:{fill:'blue'}, size:200, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}}}},
-        {name:'line', data:'gradientCurve', x:'x', y:'y', curve:d3.curveCardinal, attr:{stroke:[{'stop-color':'red'},{'stop-color':'yellow'}], 'stroke-width':5}}
+        {name:'line', x:'{x}', y:'{y}', attr:{stroke:'b{c}', 'stroke-width':3, 'stroke-dasharray':4}},
+        {name:'point', x:'{x}', y:'{y}', attr:{fill:'blue'}, size:200, opt:{ev:{onMouseEnter:{popup:{vals:['y']}}}}},
+        {name:'line', data:'gradientCurve', x:'{x}', y:'{y}', curve:d3.curveCardinal, attr:{stroke:[{'stop-color':'red'},{'stop-color':'yellow'}], 'stroke-width':5}}
       ]
     }
 

@@ -12,12 +12,12 @@
   <!-- Renderers -->
   <script type="text/javascript" src="../libs/d3/d3.js"></script>
   <script type="text/javascript" src="../libs/paper-core.v0.12.15.min.js"></script>
-  
 
-  
+
+
 
   <!-- Hive Popups -->
-  
+
   <script src='../libs/svg-text.js'></script>
   <script src="../libs/popper.js"></script>
   <script src="../libs/tippy.js"></script>
@@ -60,10 +60,10 @@
       },
       data:[{url:'./data/data_for_density2d.csv', handler:wrangler}],
       draw:[
-        {name:'axis', scale:'x'},
-        {name:'axis', scale:'y', opt:{orientation:'left'}},
-        {name:'binhex', x:'x', y:'y', radius:9, attr:{
-          fill:'#69b3a2', opacity:'opacity', stroke:'black', 'stroke-opacity':'opacity'
+        {name:'axis', scale:'{x}'},
+        {name:'axis', scale:'{y}', opt:{orientation:'left'}},
+        {name:'binhex', x:'{x}', y:'{y}', radius:9, attr:{
+          fill:'#69b3a2', opacity:'{opacity}', stroke:'black', 'stroke-opacity':'{opacity}'
         },
         opt:{title:'Data', ev:{onMouseEnter:{popup:{vals:['qty']}}, group:'bh'}},
         }
