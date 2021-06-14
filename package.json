@@ -1,6 +1,6 @@
 {
   "name": "hdsf-hive-examples",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Examples for hdsf-hive.",
   "main": "index.js",
   "directories": {
@@ -28,6 +28,6 @@
   },
   "homepage": "https://github.com/mwolf-eu/hdsf-hive-examples#readme",
   "dependencies": {
-    "hdsf-hive": "^0.0.2"
+    "hdsf-hive": "^0.0.3"
   }
 }
