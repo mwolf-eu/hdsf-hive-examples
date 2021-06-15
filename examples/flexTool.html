@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    div {
+      background:floralwhite;
+      border: 1px solid black;
+    }
+  </style>
+</head>
+
+<!-- Hive Core-->
+<script type="module" src="../dist/hdsf-hive.js"></script>
+
+<body>
+
+  <p>This is a debug tool for flex layouts. It defaults to the chart template. Paste JSON into the textbox to test layout changes.  Templates can be copied here by printing them to the console, right-clicking and copying the object, then pasting them in the textbox.</p>
+  <div id='container' style='height:30vh; width:40vw; position:relative;'>Responsive Frames</div>
+  <textarea id="json-input" style="height:50vh; width:90vw; margin:5px;"></textarea>
+  <script type='module'>
+
+    let cbData = {name:'node', content:{}};
+
+    let resizeCb = ((id,d,u) => {
+      u.data.content[id] = d.x%2?'lightgreen':'lightblue';
+    }).toString();
+
+    let titleFontSize = 16;
+    let axisLabelFontSize = 10;
+    let axisHeight = 30;
+    let guideHeight = 30;
+    let axisMargin = 8;
+
+    let templates = new Hive.templates();
+    let layout = templates.chart();
+
+    class frame {
+      constructor(cfg, calculated) {
+        this.cfg = cfg;
+        this.container = document.getElementById('container');
+        if (calculated) {
+          this.data = calculated.data;
+          this.redraw (...calculated.redraw);
+        } else {
+          this.nodes;
+          this.flex = new Worker('../dist/flexWorker.js');
+
+          let calls = {
+            nodeResized:this.frameUpdate.bind(this),
+            nodesResized:this.redraw.bind(this)
+          }
+
+          this.flex.addEventListener('message', function(e) {
+            calls[e.data[0]](...e.data[1]);
+          }, false);
+
+          window.addEventListener("resize", d => this.resize());
+          this.resize();
+        }
+      }
+
+      resize() {
+        this.flex.postMessage(['resize', [layout, undefined, this.container.clientWidth, this.container.clientHeight]]);
+      }
+
+      frameUpdate(id,d,u) {
+        this.data = u.data.content;
+      }
+
+      redraw(nodes, nodeOrder) {
+        // update frame data structure here
+        // redraw all
+
+        // this.nodes = nodes;
+        nodeOrder.forEach((item, i) => {
+          let e = document.getElementById(item);
+          if (!e) {
+            e = document.createElement("div");
+            this.container.appendChild(e);
+          }
+          e.setAttribute('id', item);
+          e.style.left = nodes[item].layout.x + 'px';
+          e.style.top = nodes[item].layout.y + 'px';
+          e.style.position = 'absolute';
+          e.style.width = nodes[item].layout.w + 'px';
+          e.style.height = nodes[item].layout.h + 'px';
+        });
+      }
+    }
+
+    // PRECALCULATED
+    // let data = {"root":"lightblue","node1":"lightblue","node2":"lightblue","node3":"lightgreen","node4":"lightblue","node5":"lightblue"};
+    // let redraw = [
+    //     {
+    //       "root":{"layout":{"x":0,"y":0,"w":402,"h":274}},
+    //       "node1":{"layout":{"x":92,"y":0,"w":100,"h":100}},
+    //       "node2":{"layout":{"x":192,"y":0,"w":100,"h":100}},
+    //       "node3":{"layout":{"x":297,"y":5,"w":100,"h":100}},
+    //       "node4":{"layout":{"x":202,"y":110,"w":100,"h":100}},
+    //       "node5":{"layout":{"x":302,"y":110,"w":100,"h":100}}
+    //     },
+    //     ["root", "node1", "node2", "node3", "node4", "node5"]
+    //   ];
+    // let f = new frame(null, {redraw, data});
+    // DYNAMIC
+
+    let f = new frame();
+    let ta = document.getElementById("json-input");
+    ta.innerHTML = JSON.stringify(layout, null, 2).replace(/,\n +/g, ', ');
+
+    function parse() {
+      document.getElementById("container").innerHTML = '';
+      try {
+        layout = JSON.parse(ta.value);
+      } catch (error) {
+        console.error(error);
+      }
+
+      f.resize();
+    }
+
+    ta.addEventListener('input', parse, false);
+    // make tab key work
+    document.getElementById('json-input').addEventListener('keydown', function(e) {
+      if (e.key == 'Tab') {
+        e.preventDefault();
+        var start = this.selectionStart;
+        var end = this.selectionEnd;
+
+        // set textarea value to: text before caret + tab + text after caret
+        this.value = this.value.substring(0, start) +
+          "\t" + this.value.substring(end);
+
+        // put caret at right position again
+        this.selectionStart =
+          this.selectionEnd = start + 1;
+      }
+    });
+
+    parse();
+
+  </script>
+</body>
+</html>
