@@ -3,6 +3,8 @@ Examples for Hive demonstrating most of the key features.
 
 [Live Examples](https://mwolf-eu.github.io/hdsf-hive-examples/)
 
+[HDSF-Hive Repository](https://github.com/mwolf-eu/hdsf-hive)
+
 # Getting started
 - Clone this repository
 - Change directory to repository root
