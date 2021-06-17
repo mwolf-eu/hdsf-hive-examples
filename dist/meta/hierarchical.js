@@ -1,10 +1,10 @@
 // sun/star burst csv to obj wrangler
 "use strict";
 
-Hive.Type.heirarchical = class {
+Hive.Type.hierarchical = class {
 
   /**
-  * Create a data structure heirarchical charts
+  * Create a data structure hierarchical charts
   *
   * @param Array Data objects
   * @param string The ID to sort on

@@ -81,7 +81,7 @@
 
     // the conversion is pegged to a domain of [0,1000] per dimension
     // With decimal places it's probably enough resolution for all geoms.
-    let root = Hive.Type.heirarchical.convert(data, 'id', 'region', 'pop', 'Total')
+    let root = Hive.Type.hierarchical.convert(data, 'id', 'region', 'pop', 'Total')
 
     let dom = 1000; // a full circle by the wrangler scale
     let radlblroot = root.filter(function(d) { // you COULD filter out smaller slices here
