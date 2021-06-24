@@ -30,7 +30,7 @@
 <!-- Example Support Code  -->
 <script type="module" src="./chooser.js"></script>
 <body>
-
+  <b>Example: Modifying data.</b>
   <div id="visualization" class="section-container"></div>
 
   <script type="module">
@@ -43,6 +43,8 @@
 
     let smData1 = [{x:1, y:3}, {x:2, y:5}, {x:3, y:4}, {x:4, y:6}, {x:5, y:2}];
     let vis;
+
+    let popped;
 
     let cfg = {
       element:{
@@ -70,9 +72,33 @@
       ]
     }
 
+    function dataCycle() {
+      let rmGuide = () => {
+        vis.getScales().c.domain([]);
+        vis.setDraw(vis.getDraw().slice(0,3))
+        vis.getFrame('basic > guide-right').children = [];
+        vis.tk.draw.guide = undefined;
+      }
+
+      if (!popped) {
+        popped = smData1.pop(); // rm data
+        vis.getScales().x.domain([0,5]);
+        rmGuide();
+      } else {
+        smData1.push(popped); // add data
+        popped = undefined;
+        vis.getScales().x.domain([0,6]);
+        rmGuide();
+      }
+      vis.tk.frames.entry(vis.v.frames)
+      // vis.redraw();
+    }
+
     window.THREE = THREE;
     let fonts = [['Roboto', 'url(./fonts/Roboto.woff2)']];
+    setInterval(dataCycle, 3000);
     vis = new Hive.Visualization(chooserInit(cfg), fonts);
+
     window.vis = vis; // share w chooser
   </script>
 

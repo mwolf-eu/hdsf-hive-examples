@@ -1,3 +1,9 @@
+
+/**
+ * Modified ThreeJS loader to support text.
+ * @author Michael Wolf
+ */
+
 /**
  * @author mrdoob / http://mrdoob.com/
  * @author zz85 / http://joshuakoo.com/

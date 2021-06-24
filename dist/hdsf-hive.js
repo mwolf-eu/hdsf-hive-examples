@@ -1,10 +1,17 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mod = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 Hive.Accessors = class {
 
+  /**
+  * Initialize locals
+  *
+  * @param object Functions from core
+  * @return none
+  */
   constructor(handlers) {
     this.h = handlers;
-    this.generated = {accessors:{}};
+    this.generated = {accessors:{}}; // generated accessors
   }
+
   /**
   * Creates a scale for each accessor object in cfg and adds it to the scaleDict obj.
   * Since any accessor can be used in any frame, the range is deferred until the plugin runs.
@@ -44,14 +51,11 @@ Hive.Accessors = class {
   * Parse the accessor section, resolve the scales with the local frame sizes,
   * and return the set of functions for all plugin config fields requested.
   *
-  * @param object The frame relative sizes
-  * @param array The list of cfg fields to resolve
-  * @param object The plugin cfg
-  * @param object The plugin data to calculate the domain (to be deprocated)
+  * @param object Draw attribute and accessor pairs
+  * @param object Bbox stats
+  * @param array  Draw data
   * @return An object containing the accessor functions
   */
-
-  // getScaledAccessors(relKeys, complexKeys, cfg, data) {
   getScaledAccessors(keyPairs, relKeys, data) {
     let saDict = {}; // finalized scaled accessors
     let continuousDomains =
@@ -219,10 +223,23 @@ Hive.Accessors = class {
     return saDict;
   }
 
+  /**
+  * Return a scale.
+  *
+  * @param object Scale key
+  * @return A scale
+  */
   getScale(n) {
     return this.scaleDict[n];
   }
 
+  /**
+  * Print a warning if an extent is derived at run-time.
+  *
+  * @param object Scale key
+  * @param object Derived extent
+  * @return none
+  */
   warnExtent(field, ext) {
     this.h.warn(`Speed-up! Set the "${field}" domain to: ${JSON.stringify(ext)}!`)
   }
@@ -442,6 +459,14 @@ Hive.Visualization = class extends Hive.Object {
 
     return this;
   }
+  /**
+  * Print a warning if an extent is derived at run-time.
+  *
+  * @param object Scale key
+  * @param object Derived extent
+  * @return none
+  */
+
 
   setTemplate(t, c) {
     this.v = {
@@ -449,8 +474,16 @@ Hive.Visualization = class extends Hive.Object {
     };
     return this;
   }
+  /**
+  * Create a visualization.
+  *
+  * @param object Vis config
+  * @param object Font preloads
+  * @return none
+  */
 
-  graph(cfg) {
+
+  graph(cfg, fonts) {
     let prekit = ["element", "data", "frames", "accessors"];
     let toolkit = ["logLevel", ...prekit, "draw"];
 
@@ -540,16 +573,37 @@ Hive.Visualization = class extends Hive.Object {
     let promises = [...modPaths, ...pluginPaths].map(d => import(d));
     this.bootstrap(toolkit, promises, handlers);
   }
+  /**
+  * Call the user supplied state change handler
+  *
+  * @param object Variable args.  The first is always the state enum.
+  * @return none
+  */
+
 
   sendStateChange(...args) {
     if (this.v.onStateChange) this.v.onStateChange(...args);
   }
+  /**
+  * Set a scaled accessor.
+  *
+  * @param object Accessor key
+  * @param object Accessor config
+  * @return none
+  */
+
 
   setAccessor(key, value) {
     // TODO: Don't resolve whole cfg every time
     this.v.accessors[key] = value;
     this.tk.accessors.resolveCfg(this.v.accessors);
   }
+  /**
+  * Return the graph id.
+  *
+  * @return graph id
+  */
+
 
   getGraphID() {
     return this.v.name;
@@ -565,51 +619,131 @@ Hive.Visualization = class extends Hive.Object {
     this.tk.element.destroy();
     this.tk.frames.destroy();
   }
+  /**
+  * Get all opts (defaults). Currently only used for templates
+  *
+  * @return opts object
+  */
+
 
   getOpts() {
     return {
       templates: this.templates.opt
     };
   }
+  /**
+  * Set opts.
+  *
+  * @param object An object to merge into the defaults
+  * @return none
+  */
+
 
   setOpts(o) {
     if ('templates' in o) Hive.Visualization.mergeDeep(this.templates.opt, o.templates);
   }
+  /**
+  * Get renderer instantiation.
+  *
+  * @return renderer instantiation
+  */
+
 
   getRenderer() {
     return this.tk.element.renderer;
   }
+  /**
+  * Get data object
+  *
+  * @return data config
+  */
+
 
   getData() {
     return this.tk.data.cfg;
   }
+  /**
+  * Get data config
+  *
+  * @return config data section
+  */
+
 
   getDataCfg() {
     return this.v.data;
   }
+  /**
+  * Get accessor config
+  *
+  * @return accessor config section
+  */
+
 
   getAccessorCfg() {
     return this.v.accessors;
   }
+  /**
+  * Get all scales
+  *
+  * @return scales object
+  */
+
 
   getScales() {
     return this.tk.accessors.scaleDict;
   }
+  /**
+  * Get draw config
+  *
+  * @return draw config section
+  */
+
 
   getDrawCfg() {
     return this.v.draw;
   }
+  /**
+  * Get accessors from a draw directive
+  *
+  * @param object Draw directive index
+  * @return accessors
+  */
+
 
   getAccessor(num) {
     return this.tk.draw.pluginState.sa[num];
   }
+  /**
+  * Get a template node from config
+  *
+  * @param object node selector
+  * @return node
+  */
+
 
   getFrame(f) {
-    return Hive.templates.getCfgNode(this.v.frames, f); // return this.tk.frames.getNode(f);
+    return Hive.templates.getCfgNode(this.v.frames, f);
   }
+  /**
+  * Get draw config
+  *
+  * @return draw config section
+  */
+
 
   getDraw() {
     return this.v.draw;
+  }
+  /**
+  * Set draw config
+  * @param array draw directives
+  *
+  * @return none
+  */
+
+
+  setDraw(d) {
+    this.v.draw = d;
   }
   /**
   * Get defaults for the config root
@@ -637,6 +771,7 @@ Hive.Visualization = class extends Hive.Object {
   *
   * @param object Keys of objects in the config
   * @param object Array of promises
+  * @param object Utility Functions
   * @return none
   */
 
@@ -667,53 +802,66 @@ Hive.Visualization = class extends Hive.Object {
     this.tk.element.getElement()._visualization = this;
     this.sendStateChange('PARSE_CFG_END', this);
   }
+
+  redraw() {
+    this.tk.element.resize();
+  } // TEST BEFORE ENABLING
+  // /**
+  // * Returns the current config
+  // *
+  // * @return the config
+  // */
+  // getConfig() {
+  //   return this.v;
+  // }
+  //
+  // /**
+  // * Sets a new configuration
+  // *
+  // * @param object The new cfg
+  // * @return none
+  // */
+  // setConfig(cfg) {
+  //   this.v = cfg;
+  //   this.accessors(cfg.accessors);
+  //   this.rendererObj.redraw();
+  // }
+  // /**
+  // * Merge data into an existing config
+  // * This assumes unique id's which don't conflict
+  // *
+  // * @param object The new cfg
+  // * @param boolean If the new config should trigger a redraw
+  // * @return none
+  // */
+  // // merge accessors, frames, data, draw
+  // // assumes unique id's don't conflict
+  // mergeConfig(newCfg, update=true) {
+  //   let mergeObjs = ['accessors','frames','data','draw'];
+  //   mergeObjs.forEach((o, i) => {
+  //     if (! newCfg[o]) return;
+  //     if (Array.isArray(this.v[o]))
+  //       this.v[o] = [...this.v[o], ...newCfg[o]];
+  //     else
+  //       this.v[o] = {...this.v[o], ...newCfg[o]};
+  //   });
+  //
+  //   this.v = this.resolveCfg(this.v);
+  //
+  //   this.accessors(this.v.accessors);
+  //   if(update)
+  //     this.rendererObj.redraw();
+  // }
+
   /**
-  * Returns the current config
+  * Looks at a scaled accesor range and
+  * returns a gradient object
   *
-  * @return the config
+  * @param object Scaled accessor key
+  * @param boolean Visualization config
+  * @return a gradient object
   */
 
-
-  getConfig() {
-    return this.v;
-  }
-  /**
-  * Sets a new configuration
-  *
-  * @param object The new cfg
-  * @return none
-  */
-
-
-  setConfig(cfg) {
-    this.v = cfg;
-    this.accessors(cfg.accessors);
-    this.rendererObj.redraw();
-  }
-  /**
-  * Merge data into an existing config
-  * This assumes unique id's which don't conflict
-  *
-  * @param object The new cfg
-  * @param boolean If the new config should trigger a redraw
-  * @return none
-  */
-  // merge accessors, frames, data, draw
-  // assumes unique id's don't conflict
-
-
-  mergeConfig(newCfg, update = true) {
-    let mergeObjs = ['accessors', 'frames', 'data', 'draw'];
-    mergeObjs.forEach((o, i) => {
-      if (!newCfg[o]) return;
-      if (Array.isArray(this.v[o])) this.v[o] = [...this.v[o], ...newCfg[o]];else this.v[o] = { ...this.v[o],
-        ...newCfg[o]
-      };
-    });
-    this.v = this.resolveCfg(this.v);
-    this.accessors(this.v.accessors);
-    if (update) this.rendererObj.redraw();
-  }
 
   static genGradientFromSA(sa, cfg) {
     if (!cfg) cfg = this.v;
@@ -728,6 +876,12 @@ Hive.Visualization = class extends Hive.Object {
       };
     });
   }
+  /**
+  * Download an SVG
+  *
+  * @return none
+  */
+
 
   export() {
     this.tk.element.export();
@@ -737,6 +891,14 @@ Hive.Visualization = class extends Hive.Object {
 
 },{"./accessors.js":1,"./data.js":3,"./draw.js":4,"./element.js":5,"./frame.js":6,"./meta/guide-templates.js":8,"./object.js":10,"./templates.js":27}],3:[function(require,module,exports){
 Hive.Data = class {
+
+  /**
+  * Initialize locals
+  *
+  * @param object Functions from core
+  * @param object Data config section
+  * @return none
+  */
   constructor(h, cfg) {
     this.h = h;
 
@@ -758,6 +920,7 @@ Hive.Data = class {
       }
     });
   }
+
   /**
   * Parses the data array.  This is a stub for future addons which may include:
   * Getting data from urls
@@ -770,6 +933,11 @@ Hive.Data = class {
     // promises are made in constructor
   }
 
+  /**
+  * Returns the dataset promises, if any.
+  *
+  * @return dataset promises
+  */
   getPromises() {
     return this.promises;
   }
@@ -835,10 +1003,21 @@ Hive.Data = class {
 require("./meta/guide.js");
 
 Hive.Draw = class {
+  /**
+  * Initialize locals
+  *
+  * @param object Functions from core
+  * @return none
+  */
   constructor(handlers) {
     this.h = handlers;
     this.generated = {};
-  } // draw is async called at frame resolution
+  }
+  /**
+  * Entry stub
+  *
+  * @return none
+  */
 
 
   entry() {}
@@ -1051,10 +1230,24 @@ Hive.Draw = class {
     this.generated.svg = svg;
     this.h.render(svg);
   }
+  /**
+  * Get the SVG generated by draw directives
+  *
+  * @return SVG
+  */
+
 
   getSVG() {
     return this.generated.svg;
   }
+  /**
+  * Try to get a path in an object.
+  *
+  * @param object Input object
+  * @param object Path
+  * @return A child object or undefined
+  */
+
 
   getObjPath(obj, path) {
     // belongs in Object.js
@@ -1067,7 +1260,14 @@ Hive.Draw = class {
     }
 
     return o;
-  } // takes key name and draw cfg
+  }
+  /**
+  * Get the scaled accessor key from a draw attribute
+  *
+  * @param object Input path
+  * @param object Visualization config
+  * @return Scaled accessor name
+  */
 
 
   getScaledAccessorKey(k, cfg) {
@@ -1077,7 +1277,17 @@ Hive.Draw = class {
       accDes = accDes[param];
     });
     return accDes;
-  } // config shape generator
+  }
+  /**
+  * Configures generators objects used in the plugins to work with
+  * scaled accessors
+  *
+  * @param object Generator
+  * @param object Configuration
+  * @param object layer state (see draw loop)
+  * @param object Visualization config
+  * @return Scaled accessor name
+  */
 
 
   configGen(gen, cfg, layerState, row) {
@@ -1103,7 +1313,13 @@ Hive.Draw = class {
 
     });
     return gen;
-  } // configure single elements
+  }
+  /**
+  * Configures single HTML elements in the plugins
+  *
+  * @param object Draw directive config
+  * @return Object including the attributes and element
+  */
 
 
   configElement(cfg) {
@@ -1151,8 +1367,14 @@ Hive.Draw = class {
       attr,
       e
     };
-  } // configure selections for several elements Eg: Axis
-  // only basic config w/o scaled accessors etc.
+  }
+  /**
+  * Configures nested HTML elements in the plugins Eg: Axis
+  * only basic config w/o scaled accessors etc.
+  *
+  * @param object Draw directive config
+  * @return Object including the attributes and element
+  */
 
 
   configElements(cfg) {
@@ -1223,7 +1445,6 @@ Hive.Draw = class {
   * @param element The element (usually a <g>) where the new element is appended
   * @return The child element
   */
-  // create HTML element and apply attrs
 
 
   createElement(attr, e, parent) {
@@ -1235,11 +1456,25 @@ Hive.Draw = class {
     if (parent) parent.appendChild(child);
     return child;
   }
+  /**
+  * Parses an string encoded object
+  *
+  * @param object the object
+  * @return a parsed object
+  */
+
 
   getID(e) {
     let id = e.getAttribute('id');
     return JSON.parse(`{${id.replaceAll('.', ':').replaceAll('_', ',').replace(/[a-z]\w*/g, d => '"' + d + '"')}}`);
   }
+  /**
+  * Creates an id string which is HTML-safe and encodes a single level object
+  *
+  * @param object the object to encode
+  * @return string encoded object
+  */
+
 
   formatID(o) {
     let fields = ['g', 'n', 'd', 'i', 'a']; // graphID, plugin name, draw index, plugin index, alt point index
@@ -1251,10 +1486,25 @@ Hive.Draw = class {
 
     return string;
   }
+  /**
+  * Sets an object id with an encoded string
+  *
+  * @param object the object with the dest id
+  * @param object the object to encode
+  * @return none
+  */
+
 
   setID(e, o) {
     e.setAttribute('id', this.formatID(o));
   }
+  /**
+  * An monotonically increasing id generator
+  *
+  * @param object string prefix
+  * @return none
+  */
+
 
   *genID(s) {
     let idx = 0;
@@ -1320,6 +1570,13 @@ Hive.Draw = class {
   //      }
   //    });
   //  }
+
+  /**
+  * Adds new draw directives
+  *
+  * @param object the additional config
+  * @return none
+  */
 
 
   push(newCfg) {
@@ -1491,6 +1748,12 @@ var _pubsubJs = _interopRequireDefault(require("pubsub-js"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 Hive.Element = class {
+  /**
+  * Initialize locals
+  *
+  * @param object Functions from core
+  * @return none
+  */
   constructor(handlers) {
     this.h = handlers;
     this.events = [];
@@ -1589,11 +1852,23 @@ Hive.Element = class {
       this.popup = new Hive.popup(handlers, cfg.selector, this.events, cfg.popup);
     }
   }
+  /**
+  * Debouncer for resize events.  Prevents event flooding.
+  *
+  * @return none
+  */
+
 
   resizeDebounce() {
     clearTimeout(this.resizeTimer);
     this.resizeTimer = setTimeout(this.resize.bind(this), 10);
   }
+  /**
+  * Resize handler for the HTML element.
+  *
+  * @return none
+  */
+
 
   resize() {
     let tsz = this.renderer.getTargetSize();
@@ -1628,18 +1903,45 @@ Hive.Element = class {
       ...p
     });
   }
+  /**
+  * Gets the element that is drawn to. Currently either canvas or svg.
+  *
+  * @return HTML element
+  */
+
 
   getElement() {
     return this.renderer.drawableElement;
   }
+  /**
+  * Subscribe to a message.
+  *
+  * @param object varargs
+  * @return none
+  */
+
 
   messageSub(d) {
     _pubsubJs.default.subscribe(...arguments);
   }
+  /**
+  * Publish to a message.
+  *
+  * @param object varargs
+  * @return none
+  */
+
 
   messagePub(d) {
     _pubsubJs.default.publish(...arguments);
   }
+  /**
+  * Render an svg
+  *
+  * @param object SVG element
+  * @return none
+  */
+
 
   render(svg) {
     // call renderer w result
@@ -1661,11 +1963,21 @@ Hive.Element = class {
     }
 
     this.events = [];
-  }
+  } // Deprocated
+
 
   getTextWidth(text) {
     return this.renderer.getTextWidth.bind(this.renderer)(text);
   }
+  /**
+  * Get positioning information for an element.
+  *
+  * @param string group id
+  * @param string element id
+  * @param boolean If alt points should be used
+  * @return position information
+  */
+
 
   getElementPosition(gid, eid, alt) {
     return this.renderer.getPosition.bind(this.renderer)(gid, eid, alt);
@@ -1783,6 +2095,14 @@ Hive.Element = class {
 require("./templates.js");
 
 Hive.Frames = class {
+  /**
+  * Initialize locals
+  *
+  * @param object Functions from core
+  * @param object frame configuration
+  * @param object precalculated template information (optional)
+  * @return none
+  */
   constructor(handlers, cfg, calculated) {
     this.h = handlers;
 
@@ -1807,7 +2127,14 @@ Hive.Frames = class {
     this.flex.addEventListener('message', function (e) {
       calls[e.data[0]](...e.data[1]);
     }.bind(this), false);
-  } // entry point
+  }
+  /**
+  * Gets size, layout information and starts a draw.
+  * Since any accessor can be used in any frame, the range is deferred until the plugin runs.
+  *
+  * @param object The accessor cfg
+  * @return none
+  */
 
 
   entry(cfg) {
@@ -1815,27 +2142,49 @@ Hive.Frames = class {
     this.flex.postMessage(['resize', [cfg, this.nodes, container.w, container.h]]);
     console.log(cfg);
   }
+  /**
+  * Flex handler callback when a node geometry changes.
+  *
+  * @param object Frame id
+  * @param object frame dataset
+  * @param object user information
+  * @return none
+  */
+
 
   updateNodeData(id, d, u) {
     this.h.sendStateChange('FRAME_CHANGED', id, d, u);
-  } // return msg w resolved nodes
+  }
+  /**
+  * Flex handler callback when a full layout is calculated.
+  *
+  * @param object Node objects w geometry, etc.
+  * @param object Array of node order
+  * @return none
+  */
 
 
   updateNodes(nodes, nodeOrder) {
-    this.nodes = nodes; // THIS IS BAD - Will force all size changes to be rendered twice
-    // this.h.getFixups().forEach((f, i) => {
-    //   let val = this.resolveNode(f.src)[`bbox.${f.sDim}`];
-    //   // let dst = this.resolveNode(f.dst)
-    //   this.h.getFrame('guide-right').attr['margin edge-top'] = val;
-    //   // dst[`translate.${f.dDim}`] = val;
-    // });
-
+    this.nodes = nodes;
     this.h.draw();
   }
+  /**
+  * Kill the layout worker
+  *
+  * @return none
+  */
+
 
   destroy() {
     this.flex.terminate();
   }
+  /**
+  * Get a node geometry
+  *
+  * @param string node selector
+  * @return node
+  */
+
 
   resolveNode(sel) {
     let n = this.getNode(sel);
@@ -1854,6 +2203,13 @@ Hive.Frames = class {
       crop: opt.crop || false
     };
   }
+  /**
+  * Get a node config
+  *
+  * @param string node selector
+  * @return node
+  */
+
 
   getNode(sel) {
     // Clean up the selector
@@ -2692,14 +3048,6 @@ Hive.guide = class {
 
 },{"./facet.js":7}],10:[function(require,module,exports){
 (function (global){(function (){
-/*
-
- +-+-+-+-+-+-+-+
- |H|A|R|V|E|S|T|
- +-+-+-+-+-+-+-+
-
- The Analytics & Visualization Toolkit
-*/
 "use strict"; // node or frontend
 
 Object.defineProperty(exports, "__esModule", {
@@ -2715,16 +3063,19 @@ exports.Hive = void 0;
 let Hive = globalThis.Hive;
 exports.Hive = Hive;
 Hive.Object = class {
+  /**
+  * Initialize locals
+  *
+  * @return none
+  */
   constructor() {
-    Hive.systemOpts = {};
-
-    Hive.setOpt = function (path, val) {
-      path.opt = val;
-    };
-
-    Hive.getOpt = function (path) {
-      return path.opt;
-    };
+    Hive.systemOpts = {}; // Hive.setOpt = function (path, val) {
+    //   path.opt = val
+    // }
+    //
+    // Hive.getOpt = function (path) {
+    //   return path.opt
+    // }
   }
   /**
    * Writes text to console pending config log level
@@ -2779,10 +3130,24 @@ Hive.Object = class {
       return v.toString(16);
     });
   }
+  /**
+   * converts chars to hex codes
+   *
+   * @param string string object
+   * @return string of hex
+   */
+
 
   utf8ToHex(str) {
     return Array.from(str).map(c => c.charCodeAt(0) < 128 ? c.charCodeAt(0).toString(16) : encodeURIComponent(c).replace(/\%/g, '').toLowerCase()).join('');
   }
+  /**
+   * converts hex to a string
+   *
+   * @param string hex string
+   * @return decoded string
+   */
+
 
   hexToUtf8(hex) {
     return decodeURIComponent('%' + hex.match(/.{1,2}/g).join('%'));
@@ -3297,7 +3662,7 @@ Hive.Plugins.errorbar = class {
   */
   static getDefaults() {
     return {
-          frame:'chart center-container > view', whiskerLen:.3, y:0, min:0, max:0,
+          frame:'chart center-container > view', whiskerLen:.3, y0:0, y1:0,
           attr:{stroke:'black', 'stroke-width':1}
         }
   }
@@ -4594,23 +4959,30 @@ Hive.Renderer.svg = class {
 },{}],27:[function(require,module,exports){
 "use strict";
 
-// Templates are html flex-line templates to control layout of graphical elements.
-// The flex worker which resolves the config into x/y/h/w/etc. is running in another
-// thread.  As with html flex, there is a root node which contains nested children
-// ad-nauseum. In addition to flex properties, this implementation contains per-
-// node opt, and handlers.
-//
-// Opt contains user attached data which it delivers in a callback whenever a specific
-// node resizes.
-//
-// Handlers contains directives on how to RELATIVELY modify the template when a property
-// changes.  Eg: Account for a shift in title centering when the left axis grows.  While
-// it makes the overall template more cumbersome, it elides the need for two flex
-// reflows per viewport change. Eg: Reflow to get the width of the left axis, apply
-// it the title left margin, and reflow again.
+/*
+*  Templates are html flex-line templates to control layout of graphical elements.
+*  The flex worker which resolves the config into x/y/h/w/etc. is running in another
+*  thread.  As with html flex, there is a root node which contains nested children
+*  ad-nauseum. In addition to flex properties, this implementation contains per-
+*  node opt, and handlers.
+*
+*  Opt contains user attached data which it delivers in a callback whenever a specific
+*  node resizes.
+*
+*  Handlers contains directives on how to RELATIVELY modify the template when a property
+*  changes.  Eg: Account for a shift in title centering when the left axis grows.  While
+*  it makes the overall template more cumbersome, it elides the need for two flex
+*  reflows per viewport change. Eg: Reflow to get the width of the left axis, apply
+*  it the title left margin, and reflow again.
+*/
 
 Hive.templates = class {
 
+  /**
+  * Initialize locals and template opts
+  *
+  * @return none
+  */
   constructor() {
 
     // primitive opts for this module
@@ -4670,20 +5042,25 @@ Hive.templates = class {
     });
   }
 
-  // clone & mask a template object
+  /**
+  * Clone & mask a template object
+  *
+  * @param object existing object
+  * @param object new object to merge into existing
+  * @return merged object
+  */
   clone (branch, layer) {
     let obj = JSON.parse(JSON.stringify(branch));
     return Hive.Object.mergeDeep(obj, layer);
   }
 
-  // getFixups() {
-  //   return this.fixups;
-  // }
-  //
-  // setFixups(val) {
-  //   this.fixups = val;
-  // }
-
+  /**
+  * Get node from a template config
+  *
+  * @param object template object
+  * @param object node selector
+  * @return config node
+  */
   static getCfgNode(cfg, sel) {
     let byID = [];
     let getIDs  = function(cfg, pid) {
@@ -4717,14 +5094,25 @@ Hive.templates = class {
     // return cfg;
   }
 
+  /**
+  * Get options
+  *
+  * @param object template config
+  * @return cloned template config
+  */
   resolveOpt (cfg) {
     let c = this.clone(this.opt, cfg||{});
     if (c.prefix.length && !c.prefix.endsWith('-')) c.prefix += '-';
     return  c;
   }
 
-  // applyFlexAttr(cfg, node){}
 
+  /**
+  * Get basic template with right & bottom guides
+  *
+  * @param object template config options
+  * @return template
+  */
   basic(cfg) {
     let o = this.resolveOpt(cfg);
     let c = o.basic
@@ -4762,6 +5150,14 @@ Hive.templates = class {
       return template;
     }
 
+    /**
+    * Get template with quadrants
+    * This is often used for polar charts where the top right quadrant selector
+    * & origin is used and the chart spans clockwise into the -x,-y domains.
+    *
+    * @param object template config options
+    * @return template
+    */
     quadrants(cfg) {
       let o = this.resolveOpt(cfg);
       let c = o.chart;
@@ -4782,6 +5178,14 @@ Hive.templates = class {
       return template;
     }
 
+    /**
+    * Get chart template with axes, & axes labels
+    * This is often used for polar charts where the top right quadrant selector
+    * & origin is used and the chart spans clockwise into the -x,-y domains.
+    *
+    * @param object template config options
+    * @return template
+    */
     chart(cfg) {
       let o = this.resolveOpt(cfg);
       let c = o.chart;
@@ -4895,6 +5299,12 @@ Hive.templates = class {
 },{}],28:[function(require,module,exports){
 Hive.Text = class Text {
 
+  /**
+  * Convert dashes and underbars to camel-case
+  *
+  * @param string snake string
+  * @return camel string
+  */
   static snakeToCamel (str) {
     return str.replace(/([-_][a-z])/g,
       (group) => group.toUpperCase()
@@ -4903,6 +5313,15 @@ Hive.Text = class Text {
                   );
   }
 
+  /**
+  * Attach a block of text to an anchor point and set position modifiers
+  *
+  * @param object Text lines and their metrics
+  * @param number Max width of all lines
+  * @param number height of a single line
+  * @param object text formatting config
+  * @return none
+  */
   static reposition(lines, w, sh, cfg) { // set the abs position of text
     let xOff = 0, yOff = 0;
     let h = sh * lines.length;
@@ -4974,6 +5393,14 @@ Hive.Text = class Text {
     });
   }
 
+  /**
+  * Truncates text and adds ... to the end.
+  *
+  * @param object line of text
+  * @param number line width
+  * @param object line attributes
+  * @return none
+  */
   static ellipseize (line, w, attr) {
     let lineWidth = measureText([line.text + '...'], attr)[0].width;
 
@@ -4995,6 +5422,14 @@ Hive.Text = class Text {
 
   // ALL font-* attrs that affect size must be applied to the text element directly
   // as window.getComputedStyle() will not work if the SVG never hits the DOM.
+
+  /**
+  * Formats input text
+  *
+  * @param string text
+  * @param number text configuration
+  * @return text object with metrics
+  */
   static format (content, cfg) {
     let defs = {
       x:0,
@@ -5046,7 +5481,13 @@ Hive.Text = class Text {
     return ({maxWidth, lines, e, bbox:{w:rv[0].width, h:singleHeight*lines.length}});
   }
 
-  // integration w Hive
+  /**
+  * Formats the text of an SVG.  Removes existing text, inserts new formatted text.
+  *
+  * @param object HTML text element
+  * @param number text configuration
+  * @return formatted text metrics
+  */
   static replace(e, cfg) {
     // resolve w/h units
     ['height', 'width'].forEach((param, i) => {
@@ -5079,7 +5520,6 @@ Hive.Text = class Text {
     });
 
     cfg = {...def, ...cfg.text, attr};
-
 
     let rv = this.format(content, cfg);
     rv.e.setAttribute('id', id);
