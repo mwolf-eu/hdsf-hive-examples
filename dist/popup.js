@@ -55,7 +55,7 @@ Hive.popup = class {
   */
   register(cfg) {
     let attr = cfg.attr || {fill:undefined};
-    return {color:attr.fill, idx:cfg.idx, title:cfg.title, data:cfg.data};
+    return {attr, idx:cfg.idx, title:cfg.title, data:cfg.data};
   }
 
   /**
@@ -64,10 +64,30 @@ Hive.popup = class {
   * @param string color
   * @return div element string
   */
-  static getColorDiv(c) {
+  // bug: CSS border-opacity does not exist so just hope the user does not want both fill & stroke opacity
+  static getColorDiv(attr) {
     let rv = '';
-    if (c)
-      rv = `<div class='popupColor' style="height:15; width:15; background-color:${c}; display:inline-block; margin-right:5px; border-radius:20%; vertical-align:middle;"></div>`;
+    let props = '';
+
+    if (attr.fill) {
+      props += `background-color:${attr.fill}; `;
+      if (attr.opacity) props += `opacity:${attr.opacity}; `;
+    }
+
+    if ((!attr.fill || attr.fill=='none') && attr.stroke) {
+      props += `background-color:${attr.stroke}; `;
+      if (attr['stroke-opacity']) props += `opacity:${attr['stroke-opacity']}; `;
+    }
+
+    if ((!attr.fill || attr.fill=='none') && !attr.stroke)
+      props += 'background-color:black; opacity:.8; ';
+
+    if (attr)
+      rv = `
+        <div class='popupColor' style="background-color:white; height:15; width:15; display:inline-block; margin-right:5px; border-radius:20%; vertical-align:middle;">
+          <div class='popupColor' style="${props} height:15; width:15; border-radius:20%;"></div>
+        </div>`;
+
     return rv;
   }
 
@@ -81,7 +101,7 @@ Hive.popup = class {
     let rv = ''
     let keys = Object.keys(d.data);
     let title = d.title.length>0?d.title+'<br>':'';
-    let cDiv = Hive.popup.getColorDiv(d.color);
+    let cDiv = Hive.popup.getColorDiv(d.attr);
     keys.forEach((item, i) => {
       rv += cDiv + `${item}: ${d.data[item]}${i==keys.length-1?'':'<br>'}`
     });
@@ -98,7 +118,7 @@ Hive.popup = class {
     let rv = ''
     let keys = Object.keys(d.data);
     let title = d.title.length>0?d.title+'<br>':'';
-    let cDiv = Hive.popup.getColorDiv(d.color);
+    let cDiv = Hive.popup.getColorDiv(d.attr);
     keys.forEach((item, i) => {
       rv += `${item}: ${d.data[item]}${i==keys.length-1?'':'<br>'}`
     });
@@ -118,7 +138,7 @@ Hive.popup = class {
     keys.forEach((item, i) => {
       rv += item.length>0?item+'<br>':'';
       dNest[item].forEach((item, i) => {
-        let cDiv = Hive.popup.getColorDiv(item.color);
+        let cDiv = Hive.popup.getColorDiv(item.attr);
         let line = Object.keys(item.data).map((d, i) => `${d}: ${item.data[d]}`).join(', ');
         rv += cDiv + line + ((i==d.length-1)?'':'<br>');
       });
@@ -148,7 +168,7 @@ Hive.popup = class {
         item.ev[evData.type].popup.vals.forEach(d => {vals[d] = item.data[item.idx][d]});
       } else
         vals = item.data[item.idx];
-      popupData.push({title:item.title, color:item.color, data:vals});
+      popupData.push({title:item.title, attr:item.attr, data:vals});
     });
 
     let eCfg = d.e.ev[d.type]; // event config

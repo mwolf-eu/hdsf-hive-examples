@@ -1874,7 +1874,9 @@ Hive.Element = class {
     let tsz = this.renderer.getTargetSize();
     this.viewBox[2] = tsz.w;
     this.viewBox[3] = tsz.h;
-    this.renderer.setRendererSize(this.container.clientWidth, this.container.clientHeight); // dom resize and svg redraw are orthogonal when renderer == three
+    this.renderer.setRendererSize(this.container.clientWidth, this.container.clientHeight); // Some plugins need event refreshes bc the number of elements changes. Eg: binhex
+
+    if (this.popup) this.popup.events = this.events; // dom resize and svg redraw are orthogonal when renderer == three
 
     if (this.cfg.renderer.name != 'three') this.h.frames(); // rerun frames & draw
   }
@@ -3486,7 +3488,7 @@ Hive.Plugins.binhex = class {
   static getDefaults() {
     return {
           frame:'chart center-container > view', radius:10, attr:{
-            color:"fill", stroke:"rgb(0,0,0)", 'stroke-width':.5
+            fill:"blue", stroke:"rgb(0,0,0)", 'stroke-width':.5
           },
           opt:{clip:true}
         }
